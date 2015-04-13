@@ -1,4 +1,4 @@
 TDI
 =====
-Töcke darne internet
+Töcke danne internet
 Webb server and application in C++
