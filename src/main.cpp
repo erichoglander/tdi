@@ -66,6 +66,8 @@ int main(int argc, char *argv[]) {
 
 	// Other variables
 	HttpRequest request;
+	HttpResponse response;
+	string str;
 
 
 	// Set exit callbacks
@@ -119,7 +121,18 @@ int main(int argc, char *argv[]) {
 		request.parse();
 
 		cout << "Received " << bytes << " bytes" << endl;
-		cout << "Request: " << request.full << endl;
+		cout << "Host: " << request.host;
+		cout << ", Method: " << request.method;
+		cout << ", Path: " << request.path;
+		cout << ", Query: " << request.query << endl;
+
+		response.document = "<!DOCTYPE html><head><title>TDI test</title></head><body><pre>";
+		response.document+= request.header;
+		response.document+= "</pre></body></html>";
+
+		str = response.toString();
+
+		write(acceptfd, str.c_str(), str.size());
 
 		close(acceptfd);
 

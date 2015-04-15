@@ -11,13 +11,40 @@ using namespace std;
 * REQUEST
 */
 void HttpRequest::split() {
-
+	int x = full.find("\r\n\r\n");
+	header = full.substr(0, x);
+	body = full.substr(x+4);
 }
 void HttpRequest::parseHeader() {
 
+	int a,b,c;
+
+	// Method
+	a = header.find(" ");
+	method = header.substr(0, a);
+
+	// Path and query
+	a++;
+	b = header.find(" ", a);
+	c = header.find("?", a);
+	if (c != string::npos && c < b) {
+		query = header.substr(c+1, b-c-1);
+		b = c;
+	}
+	path = header.substr(a, b-a);
+
+	// Host
+	a = header.find("Host: ")+6;
+	b = header.find("\r\n", a);
+	c = header.find(":", a);
+	if (c != string::npos && c < b) 
+		b = c;
+	host = header.substr(a, b-a);
+
 }
 void HttpRequest::parse() {
-	
+	this->split();
+	this->parseHeader();
 }
 
 
@@ -64,7 +91,7 @@ string HttpResponse::toString() {
 * FUNCTIONS 
 */
 
-int utf8_length(string str) {
+int utf8Length(string str) {
 	int bytes = str.length();
 	int len = bytes;
 	for (int i=0; i<bytes; i++) {

@@ -42,7 +42,7 @@ class HttpResponse {
 
 
 
-int utf8_length(string str);
+int utf8Length(string str);
 
 
 #endif
