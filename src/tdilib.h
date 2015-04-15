@@ -4,7 +4,7 @@
 using namespace std;
 
 
-class TdiHost {
+class ConfigHost {
 
 	public:
 		string host, alias, name, root, index;
@@ -13,10 +13,10 @@ class TdiHost {
 
 };
 
-class TdiConfig {
+class Config {
 
 	public:
-		vector<TdiHost> hosts;
+		vector<ConfigHost> hosts;
 
 };
 

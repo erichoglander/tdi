@@ -20,7 +20,6 @@
 #include <string.h>
 #include <signal.h>
 #include <unistd.h>
-#include <sys/stat.h>
 #include <sys/types.h> 
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -93,10 +92,18 @@ int main(int argc, char *argv[]) {
 	int port, bytes, optval;
 	bool spawn_child;
 
+	// Child process stuff
+	pid_t pid;
+	int child_pipe[2];
+	fd_set readfds;
+	struct timeval tv;
+	tv.tv_sec = 1;
+	tv.tv_usec = 0;
+
 	// Other variables
 	HttpRequest request;
 	HttpResponse response;
-	TdiConfig config;
+	Config config;
 	string str, fpath;
 	int host;
 
@@ -111,7 +118,7 @@ int main(int argc, char *argv[]) {
 
 
 	// TODO: Load config
-	config.hosts.push_back(TdiHost());
+	config.hosts.push_back(ConfigHost());
 	config.hosts[0].name = "web1";
 	config.hosts[0].host = "localhost";
 	config.hosts[0].root = "www/web1";

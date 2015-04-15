@@ -11,7 +11,7 @@ using namespace std;
 /*
 * CONFIG
 */
-bool TdiHost::matchHost(string str) {
+bool ConfigHost::matchHost(string str) {
 	if (host == str)
 		return true;
 	if (alias.length()) {
