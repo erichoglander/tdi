@@ -4,6 +4,23 @@
 using namespace std;
 
 
+class TdiHost {
+
+	public:
+		string host, alias, name, root, index;
+
+		bool matchHost(string str);
+
+};
+
+class TdiConfig {
+
+	public:
+		vector<TdiHost> hosts;
+
+};
+
+
 class HttpRequest {
 	
 	public:
@@ -43,6 +60,9 @@ class HttpResponse {
 
 
 int utf8Length(string str);
+
+string fileExtension(string fpath);
+string fileType(string fpath);
 
 
 #endif

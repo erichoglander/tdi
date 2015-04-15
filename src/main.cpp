@@ -13,7 +13,9 @@
 
 #include <iostream>
 #include <fstream>
+#include <streambuf>
 #include <cstdlib>
+#include <vector>
 #include <string>
 #include <string.h>
 #include <signal.h>
@@ -50,6 +52,32 @@ void error(string str) {
 	exit(0);
 }
 
+int sendFile(int sockfd, string fpath) {
+
+	ifstream file(fpath.c_str(), ios::in | ios::binary);
+	string content, ftype, header;
+
+	content.assign((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
+
+	ftype = fileType(fpath);
+
+	header = 
+		"HTTP/1.1 200 OK\r\n"
+		"Server: tdi/0.1 (linux)\r\n"
+		"Connection: Keep-Alive\r\n"
+		"Content-Type: ";
+	header+= ftype;
+	header+= "\r\n";
+	header+= "Content-Length: ";
+	header+= to_string(content.length());
+	header+= "\r\n\r\n";
+
+	write(sockfd, header.c_str(), header.size());
+	write(sockfd, content.c_str(), content.size());
+
+	return 0;
+}
+
 
 
 /*
@@ -63,11 +91,14 @@ int main(int argc, char *argv[]) {
 	char buffer[1024*100]; // 100kB
 	int buffer_len = sizeof(buffer);
 	int port, bytes, optval;
+	bool spawn_child;
 
 	// Other variables
 	HttpRequest request;
 	HttpResponse response;
-	string str;
+	TdiConfig config;
+	string str, fpath;
+	int host;
 
 
 	// Set exit callbacks
@@ -80,6 +111,10 @@ int main(int argc, char *argv[]) {
 
 
 	// TODO: Load config
+	config.hosts.push_back(TdiHost());
+	config.hosts[0].name = "web1";
+	config.hosts[0].host = "localhost";
+	config.hosts[0].root = "www/web1";
 
 
 	// Open socket
@@ -117,22 +152,60 @@ int main(int argc, char *argv[]) {
 		bzero(buffer, buffer_len);
 		bytes = read(acceptfd, buffer, buffer_len-1);
 
+		// Parse request
 		request.full.assign(buffer);
 		request.parse();
 
-		cout << "Received " << bytes << " bytes" << endl;
 		cout << "Host: " << request.host;
 		cout << ", Method: " << request.method;
 		cout << ", Path: " << request.path;
 		cout << ", Query: " << request.query << endl;
 
-		response.document = "<!DOCTYPE html><head><title>TDI test</title></head><body><pre>";
-		response.document+= request.header;
-		response.document+= "</pre></body></html>";
+		// Find host
+		host = 0;
+		for (int i=0; i<config.hosts.size(); i++) {
+			if (config.hosts[i].matchHost(request.host)) {
+				host = i;
+				break;
+			}
+		}
 
-		str = response.toString();
+		// Check path for file
+		spawn_child = false;
+		if (request.path.size() == 0) {
+			if (config.hosts[host].index.size() == 0 || config.hosts[host].index == "tdi")
+				spawn_child = true;
+			else {
+				fpath = config.hosts[host].root;
+				fpath+= "/public/";
+				fpath+= config.hosts[host].index;
+			}
+		}
+		else {
+			fpath = config.hosts[host].root;
+			fpath+= "/public/";
+			fpath+= request.path;
+		}
 
-		write(acceptfd, str.c_str(), str.size());
+		if (!spawn_child) {
+			if (access(fpath.c_str(), F_OK) < 0)
+				spawn_child = true;
+			else 
+				sendFile(acceptfd, fpath);
+		}
+
+		if (spawn_child) {
+
+			response.document = 
+				"<!DOCTYPE html><head><title>TDI test</title></head><body>"
+				"<h1>Spawn child</h1>"
+				"</body></html>";
+
+			str = response.toString();
+
+			write(acceptfd, str.c_str(), str.size());
+
+		}
 
 		close(acceptfd);
 

@@ -2,9 +2,36 @@
 #include <stdlib.h>
 #include <string>
 #include <iostream>
+#include <vector>
 #include "tdilib.h"
 
 using namespace std;
+
+
+/*
+* CONFIG
+*/
+bool TdiHost::matchHost(string str) {
+	if (host == str)
+		return true;
+	if (alias.length()) {
+		if (alias == str)
+			return true;
+		str+= ",";
+		int x = alias.find(str);
+		if (x != string::npos) {
+			if (x == 0 || alias[x-1] == ' ')
+				return true;
+		}
+		str = ", "+str.substr(-1);
+		x = alias.find(str);
+		if (x != string::npos) {
+			if (x+str.length() == alias.length())
+				return true;
+		}
+	}
+	return false;
+}
 
 
 /*
@@ -24,7 +51,7 @@ void HttpRequest::parseHeader() {
 	method = header.substr(0, a);
 
 	// Path and query
-	a++;
+	a+= 2;
 	b = header.find(" ", a);
 	c = header.find("?", a);
 	if (c != string::npos && c < b) {
@@ -99,4 +126,32 @@ int utf8Length(string str) {
 			len--;
 	}
 	return len;
+}
+
+string fileExtension(string fpath) {
+	string extension;
+	int x = fpath.find_last_of(".");
+	if (x != string::npos)
+		extension = fpath.substr(x+1);
+	return extension;
+}
+string fileType(string fpath) {
+
+	string extension = fileExtension(fpath);
+	string texts[4] = {"html", "htm", "css", "js"};
+	string type;
+
+	for (int i; i<4; i++) {
+		if (texts[i] == extension) {
+			type = "text/";
+			type+= extension;
+			type+= ";charset=utf-8";
+			return type;
+		}
+	}
+
+	type = "application/";
+	type+= extension;
+
+	return type;
 }
