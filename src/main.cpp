@@ -116,6 +116,7 @@ int main(int argc, char *argv[]) {
 		bytes = read(acceptfd, buffer, buffer_len-1);
 
 		request.full.assign(buffer);
+		request.parse();
 
 		cout << "Received " << bytes << " bytes" << endl;
 		cout << "Request: " << request.full << endl;

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
+#include <iostream>
 #include "tdilib.h"
 
 using namespace std;
@@ -55,4 +56,20 @@ string HttpResponse::toString() {
 		"\r\n\r\n"+
 		document;
 	return str;
+}
+
+
+
+/*
+* FUNCTIONS 
+*/
+
+int utf8_length(string str) {
+	int bytes = str.length();
+	int len = bytes;
+	for (int i=0; i<bytes; i++) {
+		if ((str[i] >> 7) & 1 && (str[i] >> 6) & 1)
+			len--;
+	}
+	return len;
 }
