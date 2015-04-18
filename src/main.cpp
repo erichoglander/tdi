@@ -104,6 +104,7 @@ int main(int argc, char *argv[]) {
 	HttpRequest request;
 	HttpResponse response;
 	Config config;
+	string config_path = "tdi.conf";
 	string str, fpath;
 	int host;
 
@@ -117,12 +118,11 @@ int main(int argc, char *argv[]) {
 		port = atoi(argv[1]);
 
 
-	// TODO: Load config
-	config.hosts.push_back(ConfigHost());
-	config.hosts[0].name = "web1";
-	config.hosts[0].host = "localhost";
-	config.hosts[0].root = "www/web1";
+	if (access(config_path.c_str(), F_OK) < 0)
+		error("Couldn't find config file");
 
+	if (config.loadFile(config_path) < 0)
+		die("Failed to load config");
 
 	// Open socket
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);

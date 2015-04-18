@@ -7,7 +7,7 @@ using namespace std;
 class ConfigHost {
 
 	public:
-		string host, alias, name, root, index;
+		string name, host, alias, root, index;
 
 		bool matchHost(string str);
 
@@ -17,6 +17,9 @@ class Config {
 
 	public:
 		vector<ConfigHost> hosts;
+
+		int loadFile(string fpath);
+		string getStringValue(string str, string field);
 
 };
 
