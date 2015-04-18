@@ -93,6 +93,8 @@ int main(int argc, char *argv[]) {
 	bool spawn_child;
 
 	// Child process stuff
+	char child_buffer[1024*100]; // 100kB
+	int child_buffer_len = sizeof(child_buffer);
 	pid_t pid;
 	int child_pipe[2];
 	fd_set readfds;
@@ -203,14 +205,54 @@ int main(int argc, char *argv[]) {
 
 		if (spawn_child) {
 
-			response.document = 
-				"<!DOCTYPE html><head><title>TDI test</title></head><body>"
-				"<h1>Spawn child</h1>"
-				"</body></html>";
+			fpath = config.hosts[host].root;
+			fpath+= "tdi";
+			if (access(fpath.c_str(), F_OK) < 0) {
+				cout << "Couldn't find child executable" << endl;
+				response.document = "Temp 404";
+				str = response.toString();
+				write(acceptfd, str.c_str(), str.size());
+			}
+			else {
 
-			str = response.toString();
+				pipe(child_pipe); // child_pipe[0] = read, child_pipe[1] = write
+				pid = fork();
 
-			write(acceptfd, str.c_str(), str.size());
+				// Child
+				if (pid == 0) {
+
+					close(child_pipe[0]);
+					dup2(child_pipe[1], STDOUT_FILENO);
+					close(child_pipe[1]);
+
+					if (execl(fpath.c_str(), fpath.c_str(), request.full.c_str(), NULL) < 0)
+						error("Failed to execute child process");
+					_exit(0);
+
+				}
+				// Parent
+				else {
+
+					close(child_pipe[1]);
+					FD_ZERO(&readfds);
+					FD_SET(child_pipe[0], &readfds);
+					select(child_pipe[0]+1, &readfds, NULL, NULL, &tv);
+
+					if (FD_ISSET(child_pipe[0], &readfds)) {
+						bzero(child_buffer, child_buffer_len);
+						bytes = read(child_pipe[0], child_buffer, child_buffer_len-1);
+						str.assign(child_buffer);
+						while (bytes == child_buffer_len-1) {
+							bytes = read(child_pipe[0], child_buffer, child_buffer_len-1);
+							str+= child_buffer;
+						}
+						close(child_pipe[0]);
+						write(acceptfd, str.c_str(), str.size());
+					}
+
+				}
+
+			}
 
 		}
 
