@@ -138,6 +138,22 @@ void HttpRequest::parseHeader() {
 		b = c;
 	host = header.substr(a, b-a);
 
+	// Content type
+	a = header.find("Content-Type: ");
+	if (a != string::npos) {
+		a+= 14;
+		b = header.find("\r\n", a);
+		content_type = header.substr(a, b-a);
+	}
+
+	// Content length
+	a = header.find("Content-Length: ");
+	if (a != string::npos) {
+		a+= 16;
+		b = header.find("\r\n", a);
+		content_length = header.substr(a, b-a);
+	}
+
 }
 void HttpRequest::parse() {
 	this->split();

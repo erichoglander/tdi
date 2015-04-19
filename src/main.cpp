@@ -42,10 +42,6 @@ void signalHandler(int signal) {
 	if (signal == 2)
 		exit(0);
 }
-void die (string str) {
-	cout << str << endl;
-	exit(0);
-}
 void error(string str) {
 	// TODO: Error logging
 	cout << "Error: " << str << endl << strerror(errno) << endl;

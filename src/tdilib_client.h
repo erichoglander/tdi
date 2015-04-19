@@ -3,8 +3,10 @@
 
 using namespace std;
 
-
-Json::Value parsePostData(string str);
+string urlDecode(string encoded);
+Json::Value parsePostDataUrlencoded(string body);
+Json::Value parsePostDataMultipart(string body);
+Json::Value parsePostData(string content_type, string body);
 
 
 #endif

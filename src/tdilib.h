@@ -28,7 +28,7 @@ class HttpRequest {
 	
 	public:
 		string full, header, body;
-		string host, method, path, query;
+		string host, method, path, query, content_type, content_length;
 
 		void split();
 		void parseHeader();

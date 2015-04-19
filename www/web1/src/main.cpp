@@ -37,11 +37,21 @@ int main(int argc, char *argv[]) {
 	request.full.assign(argv[1]);
 	request.parse();
 
+	if (request.method == "POST")
+		_POST = parsePostData(request.content_type, request.body);
+
 	response.document = 
 		"<!DOCTYPE html><html>"
 		"<head><meta charset=\"utf-8\"><title>Child test</title></head><body>";
-	response.document+= "<h1>"+request.host+"</h1>";
+	response.document+= "<h1>"+request.host+" "+request.method+" "+request.content_type+"</h1>";
 	response.document+= "<pre>"+request.full+"</pre>";
+	response.document+= "<pre>"+_POST.toStyledString()+"</pre>";
+	response.document+=
+		"<form method=\"post\" action=\"\">"
+			"<input type=\"text\" name=\"title\" placeholder=\"Title\"><br>"
+			"<textarea name=\"message\" placeholder=\"Message\"></textarea><br>"
+			"<input type=\"submit\" name=\"submit\" value=\"Send\">"
+		"</form>";
 	response.document+= "</body></html>";
 
 	cout << response.toString();
