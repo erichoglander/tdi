@@ -5,7 +5,7 @@ using namespace std;
 
 string urlDecode(string encoded);
 Json::Value parsePostDataUrlencoded(string body);
-Json::Value parsePostDataMultipart(string body);
+Json::Value parsePostDataMultipart(string boundary, string body);
 Json::Value parsePostData(string content_type, string body);
 
 

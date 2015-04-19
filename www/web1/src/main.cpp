@@ -43,11 +43,15 @@ int main(int argc, char *argv[]) {
 	response.document = 
 		"<!DOCTYPE html><html>"
 		"<head><meta charset=\"utf-8\"><title>Child test</title></head><body>";
-	response.document+= "<h1>"+request.host+" "+request.method+" "+request.content_type+"</h1>";
+	response.document+= "<h1>"+request.host+" "+request.method+"</h1>";
 	response.document+= "<pre>"+request.full+"</pre>";
 	response.document+= "<pre>"+_POST.toStyledString()+"</pre>";
 	response.document+=
 		"<form method=\"post\" action=\"\">"
+			"<input type=\"checkbox\" name=\"categories[]\" value=\"1\">"
+			"<input type=\"checkbox\" name=\"categories[]\" value=\"2\">"
+			"<input type=\"text\" name=\"address[line]\">"
+			"<input type=\"text\" name=\"address[postal_code]\">"
 			"<input type=\"text\" name=\"title\" placeholder=\"Title\"><br>"
 			"<textarea name=\"message\" placeholder=\"Message\"></textarea><br>"
 			"<input type=\"submit\" name=\"submit\" value=\"Send\">"

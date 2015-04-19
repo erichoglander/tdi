@@ -1,4 +1,5 @@
 #include <string>
+#include <algorithm>
 #include <jsoncpp/json/json.h>
 #include "tdilib_client.h"
 
@@ -32,30 +33,64 @@ string urlDecode(string encoded) {
 Json::Value parsePostDataUrlencoded(string body) {
 
 	Json::Value data;
-	string key, value;
+	Json::Value *obj;
+	string key, value, k;
+	int start, end, eq;
 	int a,b,c;
 	bool more_values = true;
 
-	for (a = 0; more_values; a = b+1) {
-		b = body.find("&", a);
-		if (b == string::npos) {
-			b = body.size();
+	for (start = 0; more_values; start = end+1) {
+		end = body.find("&", start);
+		if (end == string::npos) {
+			end = body.size();
 			more_values = false;
 		}
-		c = body.find("=", a);
-		if (c == string::npos || c > b)
+		eq = body.find("=", start);
+		if (eq == string::npos || eq > end)
 			continue;
-		key = body.substr(a, c-a);
-		value = body.substr(c+1, b-c-1);
-		data[key] = urlDecode(value);
+		key = urlDecode(body.substr(start, eq-start));
+		value = urlDecode(body.substr(eq+1, end-eq-1));
+		if (key.find("[") == string::npos)
+			data[key] = value;
+		else {
+			obj = &data;
+			// Turn ab[cd][ef][gh] into ab[cd[ef[gh so it's easy to split
+			key.erase(remove(key.begin(), key.end(), ']'), key.end());
+			a = 0;
+			while (true) {
+				b = key.find("[", a); // Find next occurence
+				if (b == string::npos) {
+					(*obj)[key.substr(a)] = value;
+					break;
+				}
+				else if (b+1 == key.size()) {
+					k = key.substr(a, b-a);
+					if (!(*obj).isMember(k))
+						(*obj)[k] = Json::Value(Json::arrayValue);
+					(*obj)[k].append(value);
+					break;
+				}
+				else {
+					k = key.substr(a, b-a);
+					if (!(*obj).isMember(k))
+						(*obj)[k] = Json::Value(Json::objectValue);
+					obj = &((*obj)[k]);
+					a = b+1;
+				}
+			}
+		}
 	}
 
 	return data;
 
 }
-Json::Value parsePostDataMultipart(string body) {
+Json::Value parsePostDataMultipart(string boundary, string body) {
 
 	Json::Value data;
+
+	data["boundary"] = boundary;
+
+	return data;
 
 }
 Json::Value parsePostData(string content_type, string body) {
@@ -65,9 +100,14 @@ Json::Value parsePostData(string content_type, string body) {
 	if (content_type == "application/x-www-form-urlencoded") {
 		data = parsePostDataUrlencoded(body);
 	}
-	else if (content_type == "multipart/form-data") {
-		data = parsePostDataMultipart(body);
+	else if (content_type.find("multipart/form-data") != string::npos) {
+		int x = content_type.find("boundary=");
+		if (x != string::npos) {
+			string boundary = content_type.substr(x+9);
+			data = parsePostDataMultipart(boundary, body);
+		}
 	}
 
 	return data;
+
 }
