@@ -61,6 +61,10 @@ class HttpResponse {
 };
 
 
+/*
+* FUNCTIONS
+*/
+void die(string str);
 
 int utf8Length(string str);
 

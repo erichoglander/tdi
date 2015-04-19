@@ -16,6 +16,7 @@
 #include <streambuf>
 #include <cstdlib>
 #include <vector>
+#include <map>
 #include <string>
 #include <string.h>
 #include <signal.h>

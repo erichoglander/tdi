@@ -17,19 +17,19 @@
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
-#include "../../../src/tdilib.h"
+#include <jsoncpp/json/json.h>
+#include <tdilib.h>
+#include <tdilib_client.h>
 
 
-void die (string str) {
-	cout << str << endl;
-	exit(0);
-}
+using namespace std;
 
 
 int main(int argc, char *argv[]) {
 	
 	HttpRequest request;
 	HttpResponse response;
+	Json::Value _POST;
 
 	if (argc < 2)
 		die("No request headers");

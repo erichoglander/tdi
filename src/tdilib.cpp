@@ -1,10 +1,10 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
 #include <fstream>
 #include <streambuf>
 #include <iostream>
 #include <vector>
+#include <map>
 #include "tdilib.h"
 
 using namespace std;
@@ -187,6 +187,11 @@ string HttpResponse::toString() {
 /*
 * FUNCTIONS 
 */
+
+void die (string str) {
+	cout << str << endl;
+	exit(0);
+}
 
 int utf8Length(string str) {
 	int bytes = str.length();

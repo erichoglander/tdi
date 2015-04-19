@@ -1,15 +1,15 @@
 #OBJS specifies which files to compile as part of the project 
-OBJS = src/main.cpp ../../src/tdilib.cpp
+OBJS = src/main.cpp ../../src/tdilib.cpp ../../src/tdilib_client.cpp ../../lib/jsoncpp/jsoncpp.cpp
 
 #CC specifies which compiler we're using 
 CC = g++ -std=c++11
 
 #COMPILER_FLAGS specifies the additional compilation options we're using 
 # -w suppresses all warnings 
-#COMPILER_FLAGS = -w
+COMPILER_FLAGS = 
 
 #LINKER_FLAGS specifies the libraries we're linking against 
-LINKER_FLAGS =
+LINKER_FLAGS = -I../../lib -I../../src
 
 #OBJ_NAME specifies the name of our exectuable 
 OBJ_NAME = tdi
