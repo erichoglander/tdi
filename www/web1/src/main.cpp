@@ -47,7 +47,7 @@ int main(int argc, char *argv[]) {
 	response.document+= "<pre>"+request.full+"</pre>";
 	response.document+= "<pre>"+_POST.toStyledString()+"</pre>";
 	response.document+=
-		"<form method=\"post\" action=\"\">"
+		"<form method=\"post\" action=\"\" enctype=\"multipart/form-data\">"
 			"<input type=\"checkbox\" name=\"categories[]\" value=\"1\">"
 			"<input type=\"checkbox\" name=\"categories[]\" value=\"2\">"
 			"<input type=\"text\" name=\"address[line]\">"
