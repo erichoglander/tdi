@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
 	
 	HttpRequest request;
 	HttpResponse response;
-	Json::Value _POST;
+	Json::Value _POST, _GET;
 
 	if (argc < 2)
 		die("No request headers");
@@ -39,6 +39,8 @@ int main(int argc, char *argv[]) {
 
 	if (request.method == "POST")
 		_POST = parsePostData(request.content_type, request.body);
+	if (request.query.size())
+		_GET = parseDataUrlencoded(request.query);
 
 	response.document = 
 		"<!DOCTYPE html><html>"

@@ -30,7 +30,7 @@ string urlDecode(string encoded) {
 	return decoded;
 
 }
-void keyToPostData(Json::Value *obj, string key, string value) {
+void keyToData(Json::Value *obj, string key, string value) {
 
 	string k;
 	int a,b;
@@ -65,7 +65,7 @@ void keyToPostData(Json::Value *obj, string key, string value) {
 	}
 
 }
-Json::Value parsePostDataUrlencoded(string body) {
+Json::Value parseDataUrlencoded(string body) {
 
 	Json::Value data;
 	string key, value;
@@ -83,7 +83,7 @@ Json::Value parsePostDataUrlencoded(string body) {
 			continue;
 		key = urlDecode(body.substr(start, eq-start));
 		value = urlDecode(body.substr(eq+1, end-eq-1));
-		keyToPostData(&data, key, value);
+		keyToData(&data, key, value);
 	}
 
 	return data;
@@ -123,7 +123,7 @@ Json::Value parsePostDataMultipart(string boundary, string body) {
 		}
 		if (value[a] == '\r')
 			value.pop_back();
-		keyToPostData(&data, key, value);
+		keyToData(&data, key, value);
 	}
 
 	return data;
@@ -134,7 +134,7 @@ Json::Value parsePostData(string content_type, string body) {
 	Json::Value data;
 
 	if (content_type == "application/x-www-form-urlencoded") {
-		data = parsePostDataUrlencoded(body);
+		data = parseDataUrlencoded(body);
 	}
 	else if (content_type.find("multipart/form-data") != string::npos) {
 		int x = content_type.find("boundary=");
