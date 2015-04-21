@@ -7,21 +7,10 @@
 bool ConfigHost::matchHost(string str) {
 	if (host == str)
 		return true;
-	if (alias.length()) {
-		if (alias == str)
-			return true;
-		str+= ",";
-		int x = alias.find(str);
-		if (x != string::npos) {
-			if (x == 0 || alias[x-1] == ' ')
+	if (alias.size()) {
+		for (int i=0; i<alias.size(); i++)
+			if (alias[i] == str)
 				return true;
-		}
-		str = ", "+str.substr(-1);
-		x = alias.find(str);
-		if (x != string::npos) {
-			if (x+str.length() == alias.length())
-				return true;
-		}
 	}
 	return false;
 }
@@ -32,9 +21,9 @@ int Config::loadFile(string fpath) {
 	if (!file)
 		return -1;
 
-	string content, part;
+	string content, part, alias;
 	int x = 0;
-	int a, end;
+	int a, b, end;
 
 	content.assign((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
 	hosts.clear();
@@ -58,9 +47,24 @@ int Config::loadFile(string fpath) {
 		hosts.push_back(ConfigHost());
 		hosts[i].name = content.substr(x+1, a-x-1);
 		hosts[i].host = this->getStringValue(part, "host");
-		hosts[i].alias = this->getStringValue(part, "alias");
 		hosts[i].root = this->getStringValue(part, "root");
 		hosts[i].index = this->getStringValue(part, "index");
+
+		alias = this->getStringValue(part, "alias");
+		if (alias.size()) {
+			a = b = 0;
+			while (b != string::npos) {
+				b = alias.find(",", a);
+				if (b == string::npos)
+					hosts[i].alias.push_back(alias.substr(a));
+				else {
+					hosts[i].alias.push_back(alias.substr(a, b-a));
+					a = b+1;
+					while (alias[a] == ' ')
+						a++;
+				}
+			}
+		}
 
 		if (end == content.length())
 			break;

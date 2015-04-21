@@ -15,7 +15,8 @@ using namespace std;
 class ConfigHost {
 
 	public:
-		string name, host, alias, root, index;
+		string name, host, root, index;
+		vector<string> alias;
 
 		bool matchHost(string str);
 
