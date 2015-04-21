@@ -217,8 +217,7 @@ void HttpResponseHeader::setCookie(HttpCookie *cookie) {
 }
 
 string HttpResponse::toString() {
-	string str;
-	str = 
+	string str = 
 		header.toString(document.length())+
 		"\r\n\r\n"+
 		document;

@@ -59,8 +59,7 @@ int sendFile(int sockfd, string fpath, string code = "200 OK") {
 
 	ftype = fileType(fpath);
 
-	header = "";
-	header+= 
+	header = 
 		"HTTP/1.1 "+code+"\r\n"
 		"Server: tdi/0.1 (linux)\r\n"
 		"Connection: Keep-Alive\r\n"
@@ -215,8 +214,10 @@ int main(int argc, char *argv[]) {
 		if (!spawn_child) {
 			if (access(fpath.c_str(), F_OK) < 0)
 				spawn_child = true;
-			else 
-				sendFile(acceptfd, fpath);
+			else if (sendFile(acceptfd, fpath) < 0) {
+				cout << "Failed to send file: "+fpath << endl;
+				htmlError(acceptfd, 404);
+			}
 		}
 
 		if (spawn_child) {
@@ -239,8 +240,10 @@ int main(int argc, char *argv[]) {
 					dup2(child_pipe[1], STDOUT_FILENO);
 					close(child_pipe[1]);
 
-					if (execl(fpath.c_str(), fpath.c_str(), request.full.c_str(), NULL) < 0)
-						error("Failed to execute child process");
+					if (execl(fpath.c_str(), fpath.c_str(), request.full.c_str(), NULL) < 0) {
+						cout << "Failed to execute child process" << endl;
+						htmlError(acceptfd, 500);
+					}
 					_exit(0);
 
 				}
