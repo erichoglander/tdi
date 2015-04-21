@@ -11,20 +11,22 @@
 
 */
 
+#include <cstdlib>
+#include <cstring>
+#include <csignal>
+#include <cerrno>
+
 #include <iostream>
 #include <fstream>
 #include <streambuf>
-#include <cstdlib>
 #include <vector>
 #include <map>
 #include <string>
-#include <string.h>
-#include <signal.h>
 #include <unistd.h>
 #include <sys/types.h> 
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <errno.h>
+
 #include "tdilib.h"
 
 using namespace std;

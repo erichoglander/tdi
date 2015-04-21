@@ -5,19 +5,22 @@
 
 	Minimalistic web client in C++
 
+	This program is executed by the TDI server
+
 */
 
+
+#include <cstdlib>
+#include <cstring>
+#include <cerrno>
 
 #include <iostream>
 #include <fstream>
 #include <streambuf>
-#include <cstdlib>
 #include <vector>
 #include <string>
-#include <string.h>
 #include <unistd.h>
-#include <errno.h>
-	
+
 #include <jsoncpp/json/json.h>
 
 #include <tdilib.h>
@@ -49,7 +52,10 @@ int main(int argc, char *argv[]) {
 		"<head><meta charset=\"utf-8\"><title>Child test</title></head><body>";
 	response.document+= "<h1>"+request.host+" "+request.method+"</h1>";
 	response.document+= "<pre>"+request.full+"</pre>";
+	response.document+= "<h2>POST</h2>";
 	response.document+= "<pre>"+_POST.toStyledString()+"</pre>";
+	response.document+= "<h2>GET</h2>";
+	response.document+= "<pre>"+_GET.toStyledString()+"</pre>";
 	response.document+=
 		"<form method=\"post\" action=\"\" enctype=\"multipart/form-data\">"
 			"<input type=\"checkbox\" name=\"categories[]\" value=\"1\">"
