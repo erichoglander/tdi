@@ -1,5 +1,9 @@
+#The parent src path
+SRCPATH = ../../src
+LIBPATH = ../../lib
+
 #OBJS specifies which files to compile as part of the project 
-OBJS = src/main.cpp ../../src/tdilib.cpp ../../src/tdilib_client.cpp ../../lib/jsoncpp/jsoncpp.o
+OBJS = src/main.cpp $(SRCPATH)/tdilib.cpp $(SRCPATH)/tdilib_client.cpp $(LIBPATH)/jsoncpp/jsoncpp.o
 
 #CC specifies which compiler we're using 
 CC = g++ -std=c++11
@@ -9,7 +13,7 @@ CC = g++ -std=c++11
 COMPILER_FLAGS = 
 
 #LINKER_FLAGS specifies the libraries we're linking against 
-LINKER_FLAGS = -I../../lib -I../../src
+LINKER_FLAGS = -I$(SRCPATH) -I$(LIBPATH)
 
 #OBJ_NAME specifies the name of our exectuable 
 OBJ_NAME = tdi
