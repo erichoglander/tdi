@@ -13,5 +13,4 @@ Json::Value parseDataUrlencoded(string body);
 Json::Value parsePostDataMultipart(string boundary, string body);
 Json::Value parsePostData(string content_type, string body);
 
-
 #endif

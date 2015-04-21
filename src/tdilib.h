@@ -45,17 +45,25 @@ class HttpRequest {
 
 };
 
+class HttpCookie {
+	public:
+		string name, value, expires, domain, path;
+		bool secure, http;
+
+		HttpCookie(string name_string, string value_string);
+		string toString();
+};
 
 class HttpResponseHeader {
 
 	public:
 		string protocol, code, server, connection, content_type;
+		map<string, HttpCookie*> cookies;
 
-		// Constructor
 		HttpResponseHeader();
-
-		// Joins all header parameters into a string
+		~HttpResponseHeader();
 		string toString(int content_length);
+		void setCookie(HttpCookie *cookie);
 
 };
 
@@ -66,6 +74,7 @@ class HttpResponse {
 		string document;
 
 		string toString();
+		void setCookie(HttpCookie *cookie);
 
 };
 

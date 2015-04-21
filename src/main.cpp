@@ -50,7 +50,7 @@ void error(string str) {
 	exit(0);
 }
 
-int sendFile(int sockfd, string fpath) {
+int sendFile(int sockfd, string fpath, string code = "200 OK") {
 
 	ifstream file(fpath.c_str(), ios::in | ios::binary);
 	string content, ftype, header;
@@ -59,21 +59,38 @@ int sendFile(int sockfd, string fpath) {
 
 	ftype = fileType(fpath);
 
-	header = 
-		"HTTP/1.1 200 OK\r\n"
+	header = "";
+	header+= 
+		"HTTP/1.1 "+code+"\r\n"
 		"Server: tdi/0.1 (linux)\r\n"
 		"Connection: Keep-Alive\r\n"
-		"Content-Type: ";
-	header+= ftype;
-	header+= "\r\n";
-	header+= "Content-Length: ";
-	header+= to_string(content.length());
-	header+= "\r\n\r\n";
+		"Content-Type: "+ftype+"\r\n"
+		"Content-Length: "+to_string(content.length())+
+		"\r\n\r\n";
 
 	write(sockfd, header.c_str(), header.size());
 	write(sockfd, content.c_str(), content.size());
 
 	return 0;
+}
+
+void htmlError(int sockfd, int code) {
+
+	string code_string, fpath;
+
+	if (code == 403)
+		code_string = "403 Forbidden";
+	else if (code == 404)
+		code_string = "404 Not found";
+	else if (code == 500)
+		code_string = "500 Internal error";
+	else
+		code_string = to_string(code);
+
+	fpath = "error/"+to_string(code)+".html";
+
+	if (sendFile(sockfd, fpath, code_string) < 0)
+		cout << "An error occured while trying to display an error document" << endl;
 }
 
 
@@ -208,9 +225,7 @@ int main(int argc, char *argv[]) {
 			fpath+= "tdi";
 			if (access(fpath.c_str(), F_OK) < 0) {
 				cout << "Couldn't find child executable" << endl;
-				response.document = "Temp 404";
-				str = response.toString();
-				write(acceptfd, str.c_str(), str.size());
+				htmlError(acceptfd, 404);
 			}
 			else {
 

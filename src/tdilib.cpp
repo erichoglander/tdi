@@ -160,6 +160,27 @@ void HttpRequest::parse() {
 /*
 * RESPONSE
 */
+HttpCookie::HttpCookie(string name_string, string value_string) {
+	name = name_string;
+	value = value_string;
+	path = "/";
+	secure = false;
+	http = false;
+}
+string HttpCookie::toString() {
+	string str = name+"="+value;
+	if (expires.size())
+		str+= "; Expires="+expires;
+	if (domain.size())
+		str+= "; Domain="+domain;
+	if (path.size())
+		str+= "; Path="+path;
+	if (secure)
+		str+= "; Secure";
+	if (http)
+		str+= "; HttpOnly";
+	return str;
+}
 HttpResponseHeader::HttpResponseHeader() {
 	protocol = "HTTP/1.1";
 	code = "200 OK";
@@ -167,7 +188,11 @@ HttpResponseHeader::HttpResponseHeader() {
 	connection = "Keep-Alive";
 	content_type = "text/html; charset=utf-8";
 }
-
+HttpResponseHeader::~HttpResponseHeader() {
+	for (map<string, HttpCookie*>::iterator itr = cookies.begin();
+			 itr != cookies.end(); itr++)
+		delete itr->second;
+}
 string HttpResponseHeader::toString(int content_length) {
 
 	string str;
@@ -179,10 +204,17 @@ string HttpResponseHeader::toString(int content_length) {
 		"Content-type: "+content_type+"\r\n"+
 		"Content-Length: "+to_string(content_length);
 
+	for (map<string, HttpCookie*>::iterator itr = cookies.begin();
+			 itr != cookies.end(); itr++) {
+		str+= "\r\nSet-Cookie: "+itr->second->toString();
+	}
+
 	return str;
 
 }
-
+void HttpResponseHeader::setCookie(HttpCookie *cookie) {
+	cookies[cookie->name] = cookie;
+}
 
 string HttpResponse::toString() {
 	string str;
@@ -191,6 +223,9 @@ string HttpResponse::toString() {
 		"\r\n\r\n"+
 		document;
 	return str;
+}
+void HttpResponse::setCookie(HttpCookie *cookie) {
+	header.setCookie(cookie);
 }
 
 
