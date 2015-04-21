@@ -1,6 +1,10 @@
 #ifndef TDILIB_CLIENT_H_
 #define TDILIB_CLIENT_H_
 
+#include <string>
+#include <algorithm>
+#include <jsoncpp/json/json.h>
+
 using namespace std;
 
 string urlDecode(string encoded);

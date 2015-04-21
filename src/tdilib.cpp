@@ -1,13 +1,4 @@
-#include <cstdlib>
-#include <string>
-#include <fstream>
-#include <streambuf>
-#include <iostream>
-#include <vector>
-#include <map>
 #include "tdilib.h"
-
-using namespace std;
 
 
 /*

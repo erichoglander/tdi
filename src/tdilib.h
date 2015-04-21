@@ -1,6 +1,14 @@
 #ifndef TDILIB_H_
 #define TDILIB_H_
 
+#include <cstdlib>
+#include <string>
+#include <fstream>
+#include <streambuf>
+#include <iostream>
+#include <vector>
+#include <map>
+
 using namespace std;
 
 

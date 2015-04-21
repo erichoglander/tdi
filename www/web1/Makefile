@@ -1,5 +1,5 @@
 #OBJS specifies which files to compile as part of the project 
-OBJS = src/main.cpp ../../src/tdilib.cpp ../../src/tdilib_client.cpp ../../lib/jsoncpp/jsoncpp.cpp
+OBJS = src/main.cpp ../../src/tdilib.cpp ../../src/tdilib_client.cpp ../../lib/jsoncpp/jsoncpp.o
 
 #CC specifies which compiler we're using 
 CC = g++ -std=c++11

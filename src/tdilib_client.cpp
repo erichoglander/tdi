@@ -1,9 +1,4 @@
-#include <string>
-#include <algorithm>
-#include <jsoncpp/json/json.h>
 #include "tdilib_client.h"
-
-using namespace std;
 
 
 /*
