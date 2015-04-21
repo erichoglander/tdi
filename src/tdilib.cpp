@@ -109,7 +109,7 @@ void HttpRequest::split() {
 }
 void HttpRequest::parseHeader() {
 
-	int a,b,c;
+	int a,b,c,d;
 
 	// Method
 	a = header.find(" ");
@@ -147,6 +147,28 @@ void HttpRequest::parseHeader() {
 		a+= 16;
 		b = header.find("\r\n", a);
 		content_length = header.substr(a, b-a);
+	}
+
+	// Cookies
+	a = header.find("Cookie: ");
+	if (a != string::npos) {
+		a+= 8;
+		b = 0;
+		c = header.find("\r\n", a);
+		while (b<c) {
+			b = header.find(";", a);
+			if (b == string::npos)
+				b = c;
+			else if (b > c)
+				break;
+			d = header.find("=", a);
+			if (d == string::npos || d > b)
+				continue;
+			cookies[header.substr(a, d-a)] = header.substr(d+1, b-d-1);
+			a = b+1;
+			while (header[a] == ' ');
+				a++;
+		}
 	}
 
 }
@@ -225,6 +247,9 @@ string HttpResponse::toString() {
 }
 void HttpResponse::setCookie(HttpCookie *cookie) {
 	header.setCookie(cookie);
+}
+void HttpResponse::sessionStart() {
+
 }
 
 

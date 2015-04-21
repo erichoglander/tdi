@@ -38,6 +38,7 @@ class HttpRequest {
 	public:
 		string full, header, body;
 		string host, method, path, query, content_type, content_length;
+		map<string, string> cookies;
 
 		void split();
 		void parseHeader();
@@ -75,6 +76,7 @@ class HttpResponse {
 
 		string toString();
 		void setCookie(HttpCookie *cookie);
+		void sessionStart();
 
 };
 

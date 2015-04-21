@@ -47,11 +47,18 @@ int main(int argc, char *argv[]) {
 	if (request.query.size())
 		_GET = parseDataUrlencoded(request.query);
 
+	// TODO: response.sessionStart();
+
 	response.document = 
 		"<!DOCTYPE html><html>"
 		"<head><meta charset=\"utf-8\"><title>Child test</title></head><body>";
 	response.document+= "<h1>"+request.host+" "+request.method+"</h1>";
 	response.document+= "<pre>"+request.full+"</pre>";
+	response.document+= "<h2>Cookies</h2>";
+	for (map<string, string>::iterator itr = request.cookies.begin();
+			 itr != request.cookies.end(); itr++) {
+		response.document+= itr->first+" = "+itr->second+"<br>";
+	}
 	response.document+= "<h2>POST</h2>";
 	response.document+= "<pre>"+_POST.toStyledString()+"</pre>";
 	response.document+= "<h2>GET</h2>";
