@@ -54,7 +54,10 @@ class HttpHandler {
 	public:
 		HttpRequest request;
 		HttpResponse response;
+		Json::Value get, post;
 
+		void init();
+		void parsePost();
 		void sessionStart();
 };
 
@@ -67,6 +70,5 @@ string urlDecode(string encoded);
 void keyToData(Json::Value *obj, string key, string value);
 Json::Value parseDataUrlencoded(string body);
 Json::Value parsePostDataMultipart(string boundary, string body);
-Json::Value parsePostData(string content_type, string body);
 
 #endif

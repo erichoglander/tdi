@@ -34,19 +34,13 @@ using namespace std;
 int main(int argc, char *argv[]) {
 	
 	HttpHandler http;
-	Json::Value _POST, _GET;
 
 	if (argc < 2)
 		die("No request headers");
 
 	http.request.full.assign(argv[1]);
-	http.request.parse();
-
-	if (http.request.method == "POST")
-		_POST = parsePostData(http.request.content_type, http.request.body);
-	if (http.request.query.size())
-		_GET = parseDataUrlencoded(http.request.query);
-
+	
+	http.init();
 	http.sessionStart();
 
 	http.response.document = 
@@ -61,9 +55,9 @@ int main(int argc, char *argv[]) {
 		http.response.document+= itr->first+" = "+itr->second+"<br>";
 	}
 	http.response.document+= "<h2>POST</h2>";
-	http.response.document+= "<pre>"+_POST.toStyledString()+"</pre>";
+	http.response.document+= "<pre>"+http.post.toStyledString()+"</pre>";
 	http.response.document+= "<h2>GET</h2>";
-	http.response.document+= "<pre>"+_GET.toStyledString()+"</pre>";
+	http.response.document+= "<pre>"+http.get.toStyledString()+"</pre>";
 	http.response.document+=
 		"<form method=\"post\" action=\"\" enctype=\"multipart/form-data\">"
 			"<input type=\"checkbox\" name=\"categories[]\" value=\"1\">"

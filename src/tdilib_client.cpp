@@ -86,6 +86,25 @@ void HttpResponse::deleteCookie(string name) {
 	header.deleteCookie(name);
 }
 
+void HttpHandler::init() {
+	request.parse();
+	if (request.method == "POST")
+		parsePost();
+	if (request.query.size())
+		get = parseDataUrlencoded(request.query);
+}
+void HttpHandler::parsePost() {
+	if (request.content_type == "application/x-www-form-urlencoded") {
+		post = parseDataUrlencoded(request.body);
+	}
+	else if (request.content_type.find("multipart/form-data") != string::npos) {
+		int x = request.content_type.find("boundary=");
+		if (x != string::npos) {
+			string boundary = "--"+request.content_type.substr(x+9);
+			post = parsePostDataMultipart(boundary, request.body);
+		}
+	}
+}
 void HttpHandler::sessionStart() {
 
 	if (request.cookies.count("SESSID") == 0)
@@ -227,24 +246,6 @@ Json::Value parsePostDataMultipart(string boundary, string body) {
 		if (value[a] == '\r')
 			value.pop_back();
 		keyToData(&data, key, value);
-	}
-
-	return data;
-
-}
-Json::Value parsePostData(string content_type, string body) {
-
-	Json::Value data;
-
-	if (content_type == "application/x-www-form-urlencoded") {
-		data = parseDataUrlencoded(body);
-	}
-	else if (content_type.find("multipart/form-data") != string::npos) {
-		int x = content_type.find("boundary=");
-		if (x != string::npos) {
-			string boundary = "--"+content_type.substr(x+9);
-			data = parsePostDataMultipart(boundary, body);
-		}
 	}
 
 	return data;
