@@ -1,3 +1,9 @@
+/*
+
+	Library used for server and client
+
+*/
+
 #ifndef TDILIB_H_
 #define TDILIB_H_
 
@@ -13,30 +19,7 @@
 using namespace std;
 
 
-class ConfigHost {
-
-	public:
-		string name, host, root, index;
-		vector<string> alias;
-
-		bool matchHost(string str);
-
-};
-
-class Config {
-
-	public:
-		vector<ConfigHost> hosts;
-
-		int loadFile(string fpath);
-		string getStringValue(string str, string field);
-
-};
-
-
-
 class HttpRequest {
-	
 	public:
 		string full, header, body;
 		string host, method, path, query, content_type, content_length;
@@ -45,54 +28,6 @@ class HttpRequest {
 		void split();
 		void parseHeader();
 		void parse();
-
-};
-
-class HttpCookie {
-	public:
-		string name, value, expires, domain, path;
-		bool secure, http;
-
-		HttpCookie(string name_string, string value_string);
-		string toString();
-		void markDelete();
-};
-
-class HttpResponseHeader {
-
-	public:
-		string protocol, code, server, connection, content_type;
-		map<string, HttpCookie*> cookies;
-
-		HttpResponseHeader();
-		~HttpResponseHeader();
-		string toString(int content_length);
-		void setCookie(HttpCookie *cookie);
-		void deleteCookie(string name);
-
-};
-
-class HttpResponse {
-	
-	public:
-		HttpResponseHeader header;
-		string document;
-
-		string toString();
-		void setCookie(HttpCookie *cookie);
-		void deleteCookie(string name);
-		void sessionStart();
-
-};
-
-class HttpHandler {
-
-	public:
-		HttpRequest request;
-		HttpResponse response;
-
-		void sessionStart();
-
 };
 
 
@@ -100,10 +35,7 @@ class HttpHandler {
 * FUNCTIONS
 */
 void die(string str);
-
 int utf8Length(string str);
-string randomString(size_t length);
-
 string fileExtension(string fpath);
 string fileType(string fpath);
 

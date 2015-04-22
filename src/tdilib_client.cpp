@@ -2,9 +2,117 @@
 
 
 /*
+* HTTP
+*/
+HttpCookie::HttpCookie(string name_string, string value_string) {
+	name = name_string;
+	value = value_string;
+	path = "/";
+	secure = false;
+	http = false;
+}
+string HttpCookie::toString() {
+	string str = name+"="+value;
+	if (expires.size())
+		str+= "; Expires="+expires;
+	if (domain.size())
+		str+= "; Domain="+domain;
+	if (path.size())
+		str+= "; Path="+path;
+	if (secure)
+		str+= "; Secure";
+	if (http)
+		str+= "; HttpOnly";
+	return str;
+}
+void HttpCookie::markDelete() {
+	value = "delete";
+	expires = "Thu Jan 1 01:00:00 1970";
+}
+
+HttpResponseHeader::HttpResponseHeader() {
+	protocol = "HTTP/1.1";
+	code = "200 OK";
+	server = "TDI/0.1 (linux)";
+	connection = "Keep-Alive";
+	content_type = "text/html; charset=utf-8";
+}
+HttpResponseHeader::~HttpResponseHeader() {
+	for (map<string, HttpCookie*>::iterator itr = cookies.begin();
+			 itr != cookies.end(); itr++)
+		delete itr->second;
+}
+string HttpResponseHeader::toString(int content_length) {
+
+	string str;
+	time_t now = time(0)-1000;
+	string date = ctime(&now);
+
+	str = 
+		protocol+" "+code+"\r\n"+
+		"Server: "+server+"\r\n"+
+		"Connection: "+connection+"\r\n"+
+		"Content-type: "+content_type+"\r\n"+
+		"Date: "+date+
+		"Content-Length: "+to_string(content_length);
+
+	for (auto itr = cookies.begin(); itr != cookies.end(); itr++) 
+		str+= "\r\nSet-Cookie: "+itr->second->toString();
+
+	return str;
+
+}
+void HttpResponseHeader::setCookie(HttpCookie *cookie) {
+	cookies[cookie->name] = cookie;
+}
+void HttpResponseHeader::deleteCookie(string name) {
+	if (cookies.count(name) != 0) {
+		cookies[name]->markDelete();
+	}
+}
+
+
+string HttpResponse::toString() {
+	string str = 
+		header.toString(document.length())+
+		"\r\n\r\n"+
+		document;
+	return str;
+}
+void HttpResponse::setCookie(HttpCookie *cookie) {
+	header.setCookie(cookie);
+}
+void HttpResponse::deleteCookie(string name) {
+	header.deleteCookie(name);
+}
+
+void HttpHandler::sessionStart() {
+
+	if (request.cookies.count("SESSID") == 0)
+		response.setCookie(new HttpCookie("SESSID", randomString(24)));
+
+	// TODO: Store session
+
+}
+
+
+/*
 * FUNCTIONS
 */
+string randomString(size_t length) {
 
+	string chars = 
+		"abcdefghijklmnopqrstuvwxyz"
+		"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+		"0123456789-_";
+	string str = "";
+	size_t size = chars.size();
+
+	for (size_t i = 0; i<length; i++) 
+		str+= chars[rand()%size];
+
+	return str;
+}
 string urlDecode(string encoded) {
 	
 	string decoded = encoded;

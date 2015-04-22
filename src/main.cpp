@@ -28,6 +28,7 @@
 #include <netinet/in.h>
 
 #include "tdilib.h"
+#include "tdilib_server.h"
 
 using namespace std;
 
