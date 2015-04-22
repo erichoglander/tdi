@@ -32,38 +32,38 @@ using namespace std;
 
 int main(int argc, char *argv[]) {
 	
-	HttpRequest request;
-	HttpResponse response;
+	HttpHandler http;
 	Json::Value _POST, _GET;
 
 	if (argc < 2)
 		die("No request headers");
 
-	request.full.assign(argv[1]);
-	request.parse();
+	http.request.full.assign(argv[1]);
+	http.request.parse();
 
-	if (request.method == "POST")
-		_POST = parsePostData(request.content_type, request.body);
-	if (request.query.size())
-		_GET = parseDataUrlencoded(request.query);
+	if (http.request.method == "POST")
+		_POST = parsePostData(http.request.content_type, http.request.body);
+	if (http.request.query.size())
+		_GET = parseDataUrlencoded(http.request.query);
 
-	// TODO: response.sessionStart();
+	http.sessionStart();
 
-	response.document = 
+	http.response.document = 
 		"<!DOCTYPE html><html>"
 		"<head><meta charset=\"utf-8\"><title>Child test</title></head><body>";
-	response.document+= "<h1>"+request.host+" "+request.method+"</h1>";
-	response.document+= "<pre>"+request.full+"</pre>";
-	response.document+= "<h2>Cookies</h2>";
-	for (map<string, string>::iterator itr = request.cookies.begin();
-			 itr != request.cookies.end(); itr++) {
-		response.document+= itr->first+" = "+itr->second+"<br>";
+	http.response.document+= "<h1>"+http.request.host+" "+http.request.method+"</h1>";
+	http.response.document+= "<pre>"+http.request.full+"</pre>";
+	http.response.document+= "<h2>Cookies</h2>";
+	for (auto itr = http.request.cookies.begin();
+			 itr != http.request.cookies.end(); 
+			 itr++) {
+		http.response.document+= itr->first+" = "+itr->second+"<br>";
 	}
-	response.document+= "<h2>POST</h2>";
-	response.document+= "<pre>"+_POST.toStyledString()+"</pre>";
-	response.document+= "<h2>GET</h2>";
-	response.document+= "<pre>"+_GET.toStyledString()+"</pre>";
-	response.document+=
+	http.response.document+= "<h2>POST</h2>";
+	http.response.document+= "<pre>"+_POST.toStyledString()+"</pre>";
+	http.response.document+= "<h2>GET</h2>";
+	http.response.document+= "<pre>"+_GET.toStyledString()+"</pre>";
+	http.response.document+=
 		"<form method=\"post\" action=\"\" enctype=\"multipart/form-data\">"
 			"<input type=\"checkbox\" name=\"categories[]\" value=\"1\">"
 			"<input type=\"checkbox\" name=\"categories[]\" value=\"2\">"
@@ -73,9 +73,9 @@ int main(int argc, char *argv[]) {
 			"<textarea name=\"message\" placeholder=\"Message\"></textarea><br>"
 			"<input type=\"submit\" name=\"submit\" value=\"Send\">"
 		"</form>";
-	response.document+= "</body></html>";
+	http.response.document+= "</body></html>";
 
-	cout << response.toString();
+	cout << http.response.toString();
 
 	return 0;
 }

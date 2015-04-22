@@ -119,7 +119,6 @@ int main(int argc, char *argv[]) {
 
 	// Other variables
 	HttpRequest request;
-	HttpResponse response;
 	Config config;
 	string config_path = "tdi.conf";
 	string str, fpath;

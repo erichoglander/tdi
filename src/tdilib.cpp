@@ -226,10 +226,8 @@ string HttpResponseHeader::toString(int content_length) {
 		"Content-type: "+content_type+"\r\n"+
 		"Content-Length: "+to_string(content_length);
 
-	for (map<string, HttpCookie*>::iterator itr = cookies.begin();
-			 itr != cookies.end(); itr++) {
+	for (auto itr = cookies.begin(); itr != cookies.end(); itr++) 
 		str+= "\r\nSet-Cookie: "+itr->second->toString();
-	}
 
 	return str;
 
@@ -248,7 +246,17 @@ string HttpResponse::toString() {
 void HttpResponse::setCookie(HttpCookie *cookie) {
 	header.setCookie(cookie);
 }
-void HttpResponse::sessionStart() {
+
+
+/*
+* HANDLER
+*/
+void HttpHandler::sessionStart() {
+
+	if (request.cookies.count("SESSID") == 0)
+		response.setCookie(new HttpCookie("SESSID", randomString(24)));
+
+	// TODO: Store session
 
 }
 
@@ -271,6 +279,20 @@ int utf8Length(string str) {
 			len--;
 	}
 	return len;
+}
+string randomString(size_t length) {
+
+	string chars = 
+		"abcdefghijklmnopqrstuvwxyz"
+		"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+		"0123456789-_";
+	string str = "";
+	size_t size = chars.size();
+
+	for (size_t i = 0; i<length; i++) 
+		str+= chars[rand()%size];
+
+	return str;
 }
 
 string fileExtension(string fpath) {

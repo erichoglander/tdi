@@ -33,6 +33,7 @@ class Config {
 };
 
 
+
 class HttpRequest {
 	
 	public:
@@ -80,6 +81,16 @@ class HttpResponse {
 
 };
 
+class HttpHandler {
+
+	public:
+		HttpRequest request;
+		HttpResponse response;
+
+		void sessionStart();
+
+};
+
 
 /*
 * FUNCTIONS
@@ -87,6 +98,7 @@ class HttpResponse {
 void die(string str);
 
 int utf8Length(string str);
+string randomString(size_t length);
 
 string fileExtension(string fpath);
 string fileType(string fpath);
