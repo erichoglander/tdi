@@ -203,6 +203,11 @@ string HttpCookie::toString() {
 		str+= "; HttpOnly";
 	return str;
 }
+void HttpCookie::markDelete() {
+	value = "delete";
+	expires = "Thu Jan 1 01:00:00 1970";
+}
+
 HttpResponseHeader::HttpResponseHeader() {
 	protocol = "HTTP/1.1";
 	code = "200 OK";
@@ -218,12 +223,15 @@ HttpResponseHeader::~HttpResponseHeader() {
 string HttpResponseHeader::toString(int content_length) {
 
 	string str;
+	time_t now = time(0)-1000;
+	string date = ctime(&now);
 
 	str = 
 		protocol+" "+code+"\r\n"+
 		"Server: "+server+"\r\n"+
 		"Connection: "+connection+"\r\n"+
 		"Content-type: "+content_type+"\r\n"+
+		"Date: "+date+
 		"Content-Length: "+to_string(content_length);
 
 	for (auto itr = cookies.begin(); itr != cookies.end(); itr++) 
@@ -235,6 +243,12 @@ string HttpResponseHeader::toString(int content_length) {
 void HttpResponseHeader::setCookie(HttpCookie *cookie) {
 	cookies[cookie->name] = cookie;
 }
+void HttpResponseHeader::deleteCookie(string name) {
+	if (cookies.count(name) != 0) {
+		cookies[name]->markDelete();
+	}
+}
+
 
 string HttpResponse::toString() {
 	string str = 
@@ -245,6 +259,9 @@ string HttpResponse::toString() {
 }
 void HttpResponse::setCookie(HttpCookie *cookie) {
 	header.setCookie(cookie);
+}
+void HttpResponse::deleteCookie(string name) {
+	header.deleteCookie(name);
 }
 
 

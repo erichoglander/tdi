@@ -11,6 +11,7 @@
 
 
 #include <cstdlib>
+#include <ctime>
 #include <cstring>
 #include <cerrno>
 

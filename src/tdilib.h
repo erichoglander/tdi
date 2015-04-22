@@ -2,6 +2,7 @@
 #define TDILIB_H_
 
 #include <cstdlib>
+#include <ctime>
 #include <string>
 #include <fstream>
 #include <streambuf>
@@ -54,6 +55,7 @@ class HttpCookie {
 
 		HttpCookie(string name_string, string value_string);
 		string toString();
+		void markDelete();
 };
 
 class HttpResponseHeader {
@@ -66,6 +68,7 @@ class HttpResponseHeader {
 		~HttpResponseHeader();
 		string toString(int content_length);
 		void setCookie(HttpCookie *cookie);
+		void deleteCookie(string name);
 
 };
 
@@ -77,6 +80,7 @@ class HttpResponse {
 
 		string toString();
 		void setCookie(HttpCookie *cookie);
+		void deleteCookie(string name);
 		void sessionStart();
 
 };
