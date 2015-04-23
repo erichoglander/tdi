@@ -18,7 +18,6 @@
 
 #include <iostream>
 #include <fstream>
-#include <streambuf>
 #include <vector>
 #include <map>
 #include <string>
@@ -53,10 +52,8 @@ void error(string str) {
 
 int sendFile(int sockfd, string fpath, string code = "200 OK") {
 
-	ifstream file(fpath.c_str(), ios::in | ios::binary);
-	string content, ftype, header;
-
-	content.assign((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
+	string content = fileLoad(fpath);
+	string ftype, header;
 
 	ftype = fileType(fpath);
 
@@ -65,7 +62,7 @@ int sendFile(int sockfd, string fpath, string code = "200 OK") {
 		"Server: tdi/0.1 (linux)\r\n"
 		"Connection: Keep-Alive\r\n"
 		"Content-Type: "+ftype+"\r\n"
-		"Content-Length: "+to_string(content.length())+
+		"Content-Length: "+to_string(content.size())+
 		"\r\n\r\n";
 
 	write(sockfd, header.c_str(), header.size());

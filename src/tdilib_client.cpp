@@ -86,6 +86,12 @@ void HttpResponse::deleteCookie(string name) {
 	header.deleteCookie(name);
 }
 
+HttpHandler::HttpHandler() {
+	sessionPath = "sessions";
+}
+HttpHandler::~HttpHandler() {
+	sessionSave();
+}
 void HttpHandler::init() {
 	request.parse();
 	if (request.method == "POST")
@@ -106,12 +112,34 @@ void HttpHandler::parsePost() {
 	}
 }
 void HttpHandler::sessionStart() {
-
-	if (request.cookies.count("SESSID") == 0)
-		response.setCookie(new HttpCookie("SESSID", randomString(24)));
-
-	// TODO: Store session
-
+	if (request.cookies.count("SESSID") != 0) {
+		if (sessionLoad(request.cookies["SESSID"]) == 0)  
+			sessionId = request.cookies["SESSID"];
+	}
+	if (!sessionId.size()) {
+		sessionId = randomString(24);
+		response.setCookie(new HttpCookie("SESSID", sessionId));
+	}
+}
+int HttpHandler::sessionLoad(string sessid) {
+	string fpath = sessionPath+"/"+sessid;
+	if (access(fpath.c_str(), F_OK) < 0)
+		return -1;
+	string content = fileLoad(fpath);
+	if (content.size()) {
+		Json::Reader reader;
+		reader.parse(content, session);
+	}
+	return 0;
+}
+void HttpHandler::sessionSave() {
+	if (sessionId.size()) {
+		string fpath = sessionPath+"/"+sessionId;
+		string content = session.toStyledString();
+		ofstream out(fpath.c_str(), ofstream::binary);
+		out.write(content.c_str(), sizeof(char)*content.size());
+		out.close();
+	}
 }
 
 

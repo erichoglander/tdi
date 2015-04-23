@@ -38,6 +38,7 @@ void die(string str);
 int utf8Length(string str);
 string fileExtension(string fpath);
 string fileType(string fpath);
+string fileLoad(string fpath);
 
 
 #endif

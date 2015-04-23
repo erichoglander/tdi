@@ -10,6 +10,7 @@
 
 #include <string>
 #include <algorithm>
+#include <unistd.h>
 #include <jsoncpp/json/json.h>
 #include <tdilib.h>
 
@@ -55,10 +56,16 @@ class HttpHandler {
 		HttpRequest request;
 		HttpResponse response;
 		Json::Value get, post;
+		string sessionPath, sessionId;
+		Json::Value session;
 
+		HttpHandler();
+		~HttpHandler();
 		void init();
 		void parsePost();
 		void sessionStart();
+		int sessionLoad(string sessid);
+		void sessionSave();
 };
 
 

@@ -124,3 +124,10 @@ string fileType(string fpath) {
 
 	return type;
 }
+string fileLoad(string fpath) {
+	string content;
+	ifstream file(fpath.c_str(), ios::in | ios::binary);
+	if (file)
+		content.assign((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
+	return content;
+}
