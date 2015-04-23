@@ -209,7 +209,7 @@ int main(int argc, char *argv[]) {
 		}
 
 		if (!spawn_child) {
-			if (access(fpath.c_str(), F_OK) < 0)
+			if (!fileExists(fpath))
 				spawn_child = true;
 			else if (sendFile(acceptfd, fpath) < 0) {
 				cout << "Failed to send file: "+fpath << endl;
@@ -221,7 +221,7 @@ int main(int argc, char *argv[]) {
 
 			fpath = config.hosts[host].root;
 			fpath+= "tdi";
-			if (access(fpath.c_str(), F_OK) < 0) {
+			if (!fileExists(fpath)) {
 				cout << "Couldn't find child executable" << endl;
 				htmlError(acceptfd, 404);
 			}

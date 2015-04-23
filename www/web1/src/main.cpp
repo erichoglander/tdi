@@ -50,7 +50,6 @@ int main(int argc, char *argv[]) {
 		"<head><meta charset=\"utf-8\"><title>Child test</title></head><body>";
 	http.response.document+= "<h1>"+http.request.host+" "+http.request.method+"</h1>";
 	http.response.document+= "<pre>"+http.request.full+"</pre>";
-	http.response.document+= argv[0];
 	http.response.document+= "<h2>Session</h2>";
 	http.response.document+= "<pre>"+http.session.toStyledString()+"</pre>";
 	http.response.document+= "<h2>POST</h2>";
