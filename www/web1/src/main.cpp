@@ -52,7 +52,6 @@ int main(int argc, char *argv[]) {
 	http.response.document+= "<h1>"+http.request.host+" "+http.request.method+"</h1>";
 	http.response.document+= "<pre>"+http.request.full+"</pre>";
 	http.response.document+= "<h2>Session</h2>";
-	http.response.document+= "<p>"+http.sessionId+"</p>";
 	http.response.document+= "<pre>"+http.session.toStyledString()+"</pre>";
 	http.response.document+= "<h2>POST</h2>";
 	http.response.document+= "<pre>"+http.post.toStyledString()+"</pre>";

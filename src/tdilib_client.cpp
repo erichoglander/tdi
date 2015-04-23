@@ -129,17 +129,20 @@ int HttpHandler::sessionLoad(string sessid) {
 	if (content.size()) {
 		Json::Reader reader;
 		reader.parse(content, session);
+		sessionLoaded = session.toStyledString();
 	}
 	return 0;
 }
 void HttpHandler::sessionSave() {
-	if (sessionId.size()) {
-		string fpath = sessionPath+"/"+sessionId;
-		string content = session.toStyledString();
-		ofstream out(fpath.c_str(), ofstream::binary);
-		out.write(content.c_str(), sizeof(char)*content.size());
-		out.close();
-	}
+	if (!sessionId.size())
+		return;
+	string content = session.toStyledString();
+	if (sessionLoaded == content)
+		return;
+	string fpath = sessionPath+"/"+sessionId;
+	ofstream out(fpath.c_str(), ofstream::binary);
+	out.write(content.c_str(), sizeof(char)*content.size());
+	out.close();
 }
 
 

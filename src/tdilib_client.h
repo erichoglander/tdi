@@ -56,7 +56,7 @@ class HttpHandler {
 		HttpRequest request;
 		HttpResponse response;
 		Json::Value get, post;
-		string sessionPath, sessionId;
+		string sessionPath, sessionId, sessionLoaded;
 		Json::Value session;
 
 		HttpHandler();
