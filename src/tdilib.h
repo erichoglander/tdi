@@ -15,6 +15,7 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <sys/stat.h>
 
 using namespace std;
 
@@ -39,6 +40,7 @@ int utf8Length(string str);
 string fileExtension(string fpath);
 string fileType(string fpath);
 string fileLoad(string fpath);
+bool fileExists(string &fpath);
 
 
 #endif

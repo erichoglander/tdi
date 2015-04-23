@@ -113,7 +113,7 @@ void HttpHandler::parsePost() {
 }
 void HttpHandler::sessionStart() {
 	if (request.cookies.count("SESSID") != 0) {
-		if (sessionLoad(request.cookies["SESSID"]) == 0)  
+		if (sessionLoad(request.cookies["SESSID"]) == 0)
 			sessionId = request.cookies["SESSID"];
 	}
 	if (!sessionId.size()) {
@@ -123,7 +123,7 @@ void HttpHandler::sessionStart() {
 }
 int HttpHandler::sessionLoad(string sessid) {
 	string fpath = sessionPath+"/"+sessid;
-	if (access(fpath.c_str(), F_OK) < 0)
+	if (!fileExists(fpath))
 		return -1;
 	string content = fileLoad(fpath);
 	if (content.size()) {

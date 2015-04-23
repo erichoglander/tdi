@@ -131,3 +131,7 @@ string fileLoad(string fpath) {
 		content.assign((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
 	return content;
 }
+bool fileExists(string &fpath) {
+	struct stat buffer;
+	return (stat(fpath.c_str(), &buffer) == 0);
+}

@@ -10,7 +10,6 @@
 
 #include <string>
 #include <algorithm>
-#include <unistd.h>
 #include <jsoncpp/json/json.h>
 #include <tdilib.h>
 
