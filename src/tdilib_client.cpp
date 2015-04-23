@@ -118,6 +118,42 @@ void HttpHandler::sessionStart() {
 /*
 * FUNCTIONS
 */
+string trim(string str) {
+	string whitespace = " \r\n\t";
+	size_t size = str.size();
+	size_t wsize = whitespace.size();
+	int i, j, k;
+
+	// Leading whitespace
+	j = 0;
+	for (i=0; i<size && j != wsize; i++) {
+		for (j=0; j<wsize; j++) {
+			if (str[i] == whitespace[j])
+				break;
+		}
+	}
+	if (i == size)
+		return str.substr(i);
+
+	// Trailing whitespace
+	j = 0;
+	for (k=size-1; k>=0 && j != wsize; k--) {
+		for (j=0; j<wsize; j++) {
+			if (str[k] == whitespace[j])
+				break;
+		}
+	}
+	return str.substr(i, k-i);
+}
+string strReplace(string haystack, string needle, string replace) {
+	string str = haystack;
+	int x = str.find(needle);
+	while (x != string::npos) {
+		str.replace(x, needle.size(), replace);
+		str.find(needle);
+	}
+	return str;
+}
 string randomString(size_t length) {
 
 	string chars = 

@@ -65,6 +65,8 @@ class HttpHandler {
 /* 
 * FUNCTIONS
 */
+string trim(string str);
+string strReplace(string haystack, string needle, string replace);
 string randomString(size_t length);
 string urlDecode(string encoded);
 void keyToData(Json::Value *obj, string key, string value);
