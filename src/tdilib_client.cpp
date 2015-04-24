@@ -90,12 +90,12 @@ HttpHandler::HttpHandler() {
 	sessionPath = "sessions";
 }
 HttpHandler::~HttpHandler() {
-	sessionSave();
+	this->sessionSave();
 }
 void HttpHandler::init() {
 	request.parse();
 	if (request.method == "POST")
-		parsePost();
+		this->parsePost();
 	if (request.query.size())
 		get = parseDataUrlencoded(request.query);
 }
@@ -113,7 +113,7 @@ void HttpHandler::parsePost() {
 }
 void HttpHandler::sessionStart() {
 	if (request.cookies.count("SESSID") != 0) {
-		if (sessionLoad(request.cookies["SESSID"]) == 0)
+		if (this->sessionLoad(request.cookies["SESSID"]) == 0)
 			sessionId = request.cookies["SESSID"];
 	}
 	if (!sessionId.size()) {
