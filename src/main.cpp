@@ -183,6 +183,7 @@ int main(int argc, char *argv[]) {
 		cout << ", Query: " << request.query << endl;
 
 		// Find host
+		// If none found, use first one
 		host = 0;
 		for (int i=0; i<config.hosts.size(); i++) {
 			if (config.hosts[i].matchHost(request.host)) {
@@ -193,15 +194,20 @@ int main(int argc, char *argv[]) {
 
 		// Check path for file
 		spawn_child = false;
+		// Index file, ex: http://www.host.com
 		if (request.path.size() == 0) {
-			if (config.hosts[host].index.size() == 0 || config.hosts[host].index == "tdi")
+			// Check for executable
+			if (config.hosts[host].index.size() == 0 || config.hosts[host].index == "tdi") {
 				spawn_child = true;
+			}
+			// Check for file in host public directory
 			else {
 				fpath = config.hosts[host].root;
 				fpath+= "/public/";
 				fpath+= config.hosts[host].index;
 			}
 		}
+		// A specified path, ex: http://www.host.com/path/to/file
 		else {
 			fpath = config.hosts[host].root;
 			fpath+= "/public/";
@@ -209,8 +215,10 @@ int main(int argc, char *argv[]) {
 		}
 
 		if (!spawn_child) {
-			if (!fileExists(fpath))
+			// If a file doesnt exist, run the executable
+			if (!fileExists(fpath)) {
 				spawn_child = true;
+			}
 			else if (sendFile(acceptfd, fpath) < 0) {
 				cout << "Failed to send file: "+fpath << endl;
 				htmlError(acceptfd, 404);
@@ -227,10 +235,11 @@ int main(int argc, char *argv[]) {
 			}
 			else {
 
+				// Run executable as a child process so we dont keep the server waiting
 				pipe(child_pipe); // child_pipe[0] = read, child_pipe[1] = write
 				pid = fork();
 
-				// Child
+				// Child, aka the website executable
 				if (pid == 0) {
 
 					close(child_pipe[0]);
@@ -244,7 +253,7 @@ int main(int argc, char *argv[]) {
 					_exit(0);
 
 				}
-				// Parent
+				// Parent, aka the server
 				else {
 
 					close(child_pipe[1]);

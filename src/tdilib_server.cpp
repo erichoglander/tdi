@@ -1,6 +1,6 @@
 #include "tdilib_server.h"
 
-
+// Match request string to host
 bool ConfigHost::matchHost(string str) {
 	if (host == str)
 		return true;
@@ -47,6 +47,7 @@ int Config::loadFile(string fpath) {
 		hosts[i].root = this->getStringValue(part, "root");
 		hosts[i].index = this->getStringValue(part, "index");
 
+		// Load aliases
 		alias = this->getStringValue(part, "alias");
 		if (alias.size()) {
 			a = b = 0;
@@ -71,6 +72,7 @@ int Config::loadFile(string fpath) {
 
 	return 0;
 }
+// Get config value
 string Config::getStringValue(string str, string field) {
 
 	string row;

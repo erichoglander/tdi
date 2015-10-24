@@ -22,8 +22,6 @@
 #include <string>
 #include <unistd.h>
 
-#include <jsoncpp/json/json.h>
-
 #include <tdilib.h>
 #include <tdilib_client.h>
 
@@ -41,9 +39,9 @@ int main(int argc, char *argv[]) {
 	srand(time(NULL));
 	http.request.full.assign(argv[1]);	
 	http.init();
-	http.sessionStart();
+	// http.sessionStart();
 
-	http.session["user_id"] = 7;
+	http.session["user_id"] = "7";
 
 	http.response.document = 
 		"<!DOCTYPE html><html>"
@@ -51,11 +49,11 @@ int main(int argc, char *argv[]) {
 	http.response.document+= "<h1>"+http.request.host+" "+http.request.method+"</h1>";
 	http.response.document+= "<pre>"+http.request.full+"</pre>";
 	http.response.document+= "<h2>Session</h2>";
-	http.response.document+= "<pre>"+http.session.toStyledString()+"</pre>";
+	http.response.document+= "<pre>"+http.session.toString()+"</pre>";
 	http.response.document+= "<h2>POST</h2>";
-	http.response.document+= "<pre>"+http.post.toStyledString()+"</pre>";
+	http.response.document+= "<pre>"+http.post.toString()+"</pre>";
 	http.response.document+= "<h2>GET</h2>";
-	http.response.document+= "<pre>"+http.get.toStyledString()+"</pre>";
+	http.response.document+= "<pre>"+http.get.toString()+"</pre>";
 	http.response.document+=
 		"<form method=\"post\" action=\"\" enctype=\"multipart/form-data\">"
 			"<input type=\"checkbox\" name=\"categories[]\" value=\"1\">"

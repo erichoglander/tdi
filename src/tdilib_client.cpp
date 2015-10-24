@@ -2,6 +2,66 @@
 
 
 /*
+* MIXED MAP
+*/
+// Allows for construction through: data["mykey"] = *(new MixedMap("myvalue"));
+MixedMap::MixedMap(string val) {
+	value = val;
+}
+MixedMap::~MixedMap() {
+	for (map<string, MixedMap*>::iterator itr = children.begin();
+			 itr != children.end(); itr++)
+		delete itr->second;
+}
+// Allows get through: data["mykey"]
+MixedMap& MixedMap::operator[](string key) {
+	if (!isset(key))
+		init(key);
+	return *children[key];
+}
+// Allows set through: data["mykey"] = "myvalue";
+void MixedMap::operator=(string val) {
+	value = val;
+}
+
+void MixedMap::init(string key) {
+	children[key] = new MixedMap();
+}
+bool MixedMap::isset(string key) {
+	return children.count(key) == 1;
+}
+MixedMap* MixedMap::get(string key) {
+	return children.at(key);
+}
+void MixedMap::set(string key, string value) {
+	if (!isset(key))
+		init(key);
+	children[key]->value = value;
+}
+string MixedMap::toString(int d) {
+	if (children.size()) {
+		string str;
+		str+= "{\n";
+		for (map<string, MixedMap*>::iterator itr = children.begin(); itr != children.end(); itr++) 
+			str+= indent(d+1) + "\"" + itr->first + "\": " + itr->second->toString(d+1) + ",\n";
+		str+= indent(d)+"}";
+		if (d == 0)
+			str+= "\n";
+		return str;
+	}
+	else {
+		return "\""+value+"\"";
+	}
+}
+string MixedMap::indent(int d) {
+	string str;
+	for (int i=0; i<d; i++)
+		str+= "  ";
+	return str;
+}
+
+
+/*
 * HTTP
 */
 HttpCookie::HttpCookie(string name_string, string value_string) {
@@ -127,16 +187,16 @@ int HttpHandler::sessionLoad(string sessid) {
 		return -1;
 	string content = fileLoad(fpath);
 	if (content.size()) {
-		Json::Reader reader;
-		reader.parse(content, session);
-		sessionLoaded = session.toStyledString();
+		// Json::Reader reader;
+		// reader.parse(content, session);
+		// sessionLoaded = session.toStyledString();
 	}
 	return 0;
 }
 void HttpHandler::sessionSave() {
 	if (!sessionId.size())
 		return;
-	string content = session.toStyledString();
+	string content = session.toString();
 	if (sessionLoaded == content)
 		return;
 	string fpath = sessionPath+"/"+sessionId;
@@ -149,6 +209,40 @@ void HttpHandler::sessionSave() {
 /*
 * FUNCTIONS
 */
+int utf8Length(string str) {
+	int bytes = str.length();
+	int len = bytes;
+	for (int i=0; i<bytes; i++) {
+		if ((str[i] >> 7) & 1 && (str[i] >> 6) & 1)
+			len--;
+	}
+	return len;
+}
+vector<string> splitString(string str, string delim) {
+	vector<string> vec;
+	int a = 0, b = 0;
+	while (true) {
+		b = str.find(delim, a);
+		if (b == string::npos) {
+			vec.push_back(str.substr(a));
+			break;
+		}
+		else {
+			vec.push_back(str.substr(a, b-a));
+			a = b + delim.size();
+		}
+	}
+	return vec;
+}
+string joinString(vector<string> vec, string delim) {
+	string str;
+	for (int i=0; i<vec.size(); i++) {
+		if (i != 0)
+			str+= delim;
+		str+= vec[i];
+	}
+	return str;
+}
 string trim(string str) {
 	string whitespace = " \r\n\t";
 	size_t size = str.size();
@@ -219,13 +313,14 @@ string urlDecode(string encoded) {
 	return decoded;
 
 }
-void keyToData(Json::Value *obj, string key, string value) {
+void keyToData(MixedMap *obj, string key, string value) {
 
 	string k;
 	int a,b;
 
-	if (key.find("[") == string::npos)
-		(*obj)[key] = value;
+	if (key.find("[") == string::npos) {
+		obj->set(key, value);
+	}
 	else {
 		// Turn ab[cd][ef][gh] into ab[cd[ef[gh so it's easy to split
 		key.erase(remove(key.begin(), key.end(), ']'), key.end());
@@ -233,30 +328,28 @@ void keyToData(Json::Value *obj, string key, string value) {
 		while (true) {
 			b = key.find("[", a); // Find next occurence
 			if (b == string::npos) {
-				(*obj)[key.substr(a)] = value;
+				obj->set(key.substr(a), value);
 				break;
 			}
 			else if (b+1 == key.size()) {
 				k = key.substr(a, b-a);
-				if (!(*obj).isMember(k))
-					(*obj)[k] = Json::Value(Json::arrayValue);
-				(*obj)[k].append(value);
+				obj->set(k, value);
 				break;
 			}
 			else {
 				k = key.substr(a, b-a);
-				if (!(*obj).isMember(k))
-					(*obj)[k] = Json::Value(Json::objectValue);
-				obj = &((*obj)[k]);
+				if (!obj->isset(k))
+					obj->init(k);
+				obj = obj->get(k);
 				a = b+1;
 			}
 		}
 	}
 
 }
-Json::Value parseDataUrlencoded(string body) {
+MixedMap parseDataUrlencoded(string body) {
 
-	Json::Value data;
+	MixedMap data;
 	string key, value;
 	int start, end, eq;
 	bool more_values = true;
@@ -278,9 +371,9 @@ Json::Value parseDataUrlencoded(string body) {
 	return data;
 
 }
-Json::Value parsePostDataMultipart(string boundary, string body) {
+MixedMap parsePostDataMultipart(string boundary, string body) {
 
-	Json::Value data;
+	MixedMap data;
 	string key, value;
 	int start, end;
 	int a,b;

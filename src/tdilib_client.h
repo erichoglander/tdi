@@ -8,13 +8,35 @@
 #ifndef TDILIB_CLIENT_H_
 #define TDILIB_CLIENT_H_
 
+#include <vector>
 #include <string>
+#include <map>
 #include <algorithm>
-#include <jsoncpp/json/json.h>
 #include <tdilib.h>
 
 using namespace std;
 
+
+
+/*
+* MIXED MAP
+*/
+class MixedMap {
+	public:
+		map<string, MixedMap*> children;
+		string value;
+
+		MixedMap(string val = "");
+		~MixedMap();
+		MixedMap& operator[](string key);
+		void operator=(string val);
+		void init(string key);
+		bool isset(string key);
+		MixedMap* get(string key);
+		void set(string key, string val);
+		string toString(int d = 0);
+		string indent(int d);
+};
 
 
 /*
@@ -54,9 +76,9 @@ class HttpHandler {
 	public:
 		HttpRequest request;
 		HttpResponse response;
-		Json::Value get, post;
+		MixedMap get, post;
 		string sessionPath, sessionId, sessionLoaded;
-		Json::Value session;
+		MixedMap session;
 
 		HttpHandler();
 		~HttpHandler();
@@ -71,12 +93,15 @@ class HttpHandler {
 /* 
 * FUNCTIONS
 */
+int utf8Length(string str);
+vector<string> splitString(string str, string delim);
+string joinString(vector<string> vec, string delim);
 string trim(string str);
 string strReplace(string haystack, string needle, string replace);
 string randomString(size_t length);
 string urlDecode(string encoded);
-void keyToData(Json::Value *obj, string key, string value);
-Json::Value parseDataUrlencoded(string body);
-Json::Value parsePostDataMultipart(string boundary, string body);
+void keyToData(MixedMap *obj, string key, string value);
+MixedMap parseDataUrlencoded(string body);
+MixedMap parsePostDataMultipart(string boundary, string body);
 
 #endif

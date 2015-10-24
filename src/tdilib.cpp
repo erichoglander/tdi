@@ -1,6 +1,7 @@
 #include "tdilib.h"
 
 
+// Split request into header and body
 void HttpRequest::split() {
 	int x = full.find("\r\n\r\n");
 	header = full.substr(0, x);
@@ -87,16 +88,7 @@ void die (string str) {
 	exit(0);
 }
 
-int utf8Length(string str) {
-	int bytes = str.length();
-	int len = bytes;
-	for (int i=0; i<bytes; i++) {
-		if ((str[i] >> 7) & 1 && (str[i] >> 6) & 1)
-			len--;
-	}
-	return len;
-}
-
+// Get file extension from a file path or name
 string fileExtension(string fpath) {
 	string extension;
 	int x = fpath.find_last_of(".");
@@ -104,6 +96,7 @@ string fileExtension(string fpath) {
 		extension = fpath.substr(x+1);
 	return extension;
 }
+// Get file type, so we can send certain files as text
 string fileType(string fpath) {
 
 	string extension = fileExtension(fpath);
@@ -124,6 +117,7 @@ string fileType(string fpath) {
 
 	return type;
 }
+// Load file contents into string
 string fileLoad(string fpath) {
 	string content;
 	ifstream file(fpath.c_str(), ios::in | ios::binary);
