@@ -30,6 +30,7 @@ class MixedMap {
 		~MixedMap();
 		MixedMap& operator[](string key);
 		void operator=(string val);
+		void clear();
 		void init(string key);
 		bool isset(string key);
 		MixedMap* get(string key);
@@ -100,8 +101,8 @@ string trim(string str);
 string strReplace(string haystack, string needle, string replace);
 string randomString(size_t length);
 string urlDecode(string encoded);
-void keyToData(MixedMap *obj, string key, string value);
-MixedMap parseDataUrlencoded(string body);
-MixedMap parsePostDataMultipart(string boundary, string body);
+void keyToData(MixedMap *data, string key, string value);
+void parseDataUrlencoded(MixedMap *data, string body);
+void parsePostDataMultipart(MixedMap *data, string boundary, string body);
 
 #endif

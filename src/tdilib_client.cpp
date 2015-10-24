@@ -9,9 +9,7 @@ MixedMap::MixedMap(string val) {
 	value = val;
 }
 MixedMap::~MixedMap() {
-	for (map<string, MixedMap*>::iterator itr = children.begin();
-			 itr != children.end(); itr++)
-		delete itr->second;
+	clear();
 }
 // Allows get through: data["mykey"]
 MixedMap& MixedMap::operator[](string key) {
@@ -24,6 +22,11 @@ void MixedMap::operator=(string val) {
 	value = val;
 }
 
+void MixedMap::clear() {
+	for (auto itr = children.begin(); itr != children.end(); itr++)
+		delete itr->second;
+	children.clear();
+}
 void MixedMap::init(string key) {
 	children[key] = new MixedMap();
 }
@@ -33,10 +36,10 @@ bool MixedMap::isset(string key) {
 MixedMap* MixedMap::get(string key) {
 	return children.at(key);
 }
-void MixedMap::set(string key, string value) {
+void MixedMap::set(string key, string val) {
 	if (!isset(key))
 		init(key);
-	children[key]->value = value;
+	children[key]->value = val;
 }
 string MixedMap::toString(int d) {
 	if (children.size()) {
@@ -98,8 +101,7 @@ HttpResponseHeader::HttpResponseHeader() {
 	content_type = "text/html; charset=utf-8";
 }
 HttpResponseHeader::~HttpResponseHeader() {
-	for (map<string, HttpCookie*>::iterator itr = cookies.begin();
-			 itr != cookies.end(); itr++)
+	for (auto itr = cookies.begin(); itr != cookies.end(); itr++)
 		delete itr->second;
 }
 string HttpResponseHeader::toString(int content_length) {
@@ -116,8 +118,10 @@ string HttpResponseHeader::toString(int content_length) {
 		"Date: "+date+
 		"Content-Length: "+to_string(content_length);
 
-	for (auto itr = cookies.begin(); itr != cookies.end(); itr++) 
-		str+= "\r\nSet-Cookie: "+itr->second->toString();
+	if (cookies.size()) {
+		for (auto itr = cookies.begin(); itr != cookies.end(); itr++) 
+			str+= "\r\nSet-Cookie: "+itr->second->toString();
+	}
 
 	return str;
 
@@ -157,17 +161,17 @@ void HttpHandler::init() {
 	if (request.method == "POST")
 		this->parsePost();
 	if (request.query.size())
-		get = parseDataUrlencoded(request.query);
+		parseDataUrlencoded(&get, request.query);
 }
 void HttpHandler::parsePost() {
 	if (request.content_type == "application/x-www-form-urlencoded") {
-		post = parseDataUrlencoded(request.body);
+		parseDataUrlencoded(&post, request.body);
 	}
 	else if (request.content_type.find("multipart/form-data") != string::npos) {
 		int x = request.content_type.find("boundary=");
 		if (x != string::npos) {
 			string boundary = "--"+request.content_type.substr(x+9);
-			post = parsePostDataMultipart(boundary, request.body);
+			parsePostDataMultipart(&post, boundary, request.body);
 		}
 	}
 }
@@ -187,9 +191,7 @@ int HttpHandler::sessionLoad(string sessid) {
 		return -1;
 	string content = fileLoad(fpath);
 	if (content.size()) {
-		// Json::Reader reader;
-		// reader.parse(content, session);
-		// sessionLoaded = session.toStyledString();
+		// TODO: Json parser
 	}
 	return 0;
 }
@@ -313,13 +315,13 @@ string urlDecode(string encoded) {
 	return decoded;
 
 }
-void keyToData(MixedMap *obj, string key, string value) {
+void keyToData(MixedMap *data, string key, string value) {
 
 	string k;
 	int a,b;
 
 	if (key.find("[") == string::npos) {
-		obj->set(key, value);
+		data->set(key, value);
 	}
 	else {
 		// Turn ab[cd][ef][gh] into ab[cd[ef[gh so it's easy to split
@@ -328,28 +330,27 @@ void keyToData(MixedMap *obj, string key, string value) {
 		while (true) {
 			b = key.find("[", a); // Find next occurence
 			if (b == string::npos) {
-				obj->set(key.substr(a), value);
+				data->set(key.substr(a), value);
 				break;
 			}
 			else if (b+1 == key.size()) {
 				k = key.substr(a, b-a);
-				obj->set(k, value);
+				data->set(k, value);
 				break;
 			}
 			else {
 				k = key.substr(a, b-a);
-				if (!obj->isset(k))
-					obj->init(k);
-				obj = obj->get(k);
+				if (!data->isset(k))
+					data->init(k);
+				data = data->get(k);
 				a = b+1;
 			}
 		}
 	}
 
 }
-MixedMap parseDataUrlencoded(string body) {
+void parseDataUrlencoded(MixedMap *data, string body) {
 
-	MixedMap data;
 	string key, value;
 	int start, end, eq;
 	bool more_values = true;
@@ -365,15 +366,12 @@ MixedMap parseDataUrlencoded(string body) {
 			continue;
 		key = urlDecode(body.substr(start, eq-start));
 		value = urlDecode(body.substr(eq+1, end-eq-1));
-		keyToData(&data, key, value);
+		keyToData(data, key, value);
 	}
 
-	return data;
-
 }
-MixedMap parsePostDataMultipart(string boundary, string body) {
+void parsePostDataMultipart(MixedMap *data, string boundary, string body) {
 
-	MixedMap data;
 	string key, value;
 	int start, end;
 	int a,b;
@@ -405,9 +403,7 @@ MixedMap parsePostDataMultipart(string boundary, string body) {
 		}
 		if (value[a] == '\r')
 			value.pop_back();
-		keyToData(&data, key, value);
+		keyToData(data, key, value);
 	}
-
-	return data;
 
 }
