@@ -15,15 +15,17 @@ void HttpRequest::parseHeader() {
 	a = header.find(" ");
 	method = header.substr(0, a);
 
-	// Path and query
+	// Uri, path, query and params
 	a+= 2;
 	b = header.find(" ", a);
 	c = header.find("?", a);
+	uri = header.substr(a, b-a);
 	if (c != string::npos && c < b) {
 		query = header.substr(c+1, b-c-1);
 		b = c;
 	}
 	path = header.substr(a, b-a);
+	params = strSplit(path, "/");
 
 	// Host
 	a = header.find("Host: ")+6;
@@ -86,6 +88,25 @@ void HttpRequest::parse() {
 void die (string str) {
 	cout << str << endl;
 	exit(0);
+}
+
+// Split string into smaller strings
+// Ex: strSplit("some,separated,words", ",") becomes "some", "separated", "words"
+vector<string> strSplit(string str, string delim) {
+	vector<string> vec;
+	int a = 0, b = 0;
+	while (true) {
+		b = str.find(delim, a);
+		if (b == string::npos) {
+			vec.push_back(str.substr(a));
+			break;
+		}
+		else {
+			vec.push_back(str.substr(a, b-a));
+			a = b + delim.size();
+		}
+	}
+	return vec;
 }
 
 // Get file extension from a file path or name

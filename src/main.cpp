@@ -100,13 +100,13 @@ int main(int argc, char *argv[]) {
 	// Socket stuff
 	struct sockaddr_in server_addr, client_addr;
 	socklen_t client_len = sizeof(client_addr);
-	char buffer[1024*100]; // 100kB
+	char buffer[1024*1024]; // 1MB
 	int buffer_len = sizeof(buffer);
 	int port, bytes, optval;
 	bool spawn_child;
 
 	// Child process stuff
-	char child_buffer[1024*100]; // 100kB
+	char child_buffer[1024*1024]; // 1MB
 	int child_buffer_len = sizeof(child_buffer);
 	pid_t pid;
 	int child_pipe[2];
@@ -132,9 +132,11 @@ int main(int argc, char *argv[]) {
 		port = atoi(argv[1]);
 
 
+	// Check if config file exists
 	if (access(config_path.c_str(), F_OK) < 0)
 		error("Couldn't find config file");
 
+	// Load config file
 	if (config.loadFile(config_path) < 0)
 		die("Failed to load config");
 
@@ -177,10 +179,10 @@ int main(int argc, char *argv[]) {
 		request.full.assign(buffer);
 		request.parse();
 
-		cout << "Host: " << request.host;
-		cout << ", Method: " << request.method;
-		cout << ", Path: " << request.path;
-		cout << ", Query: " << request.query << endl;
+		// Acknowledge request to stdout
+		cout 	<< request.method << " "
+					<< request.host << " "
+					<< request.uri << endl;
 
 		// Find host
 		// If none found, use first one

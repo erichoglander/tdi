@@ -98,11 +98,10 @@ class HttpHandler {
 * FUNCTIONS
 */
 int utf8Length(string str);
-vector<string> splitString(string str, string delim);
-string joinString(vector<string> vec, string delim);
-string trim(string str);
+string strJoin(vector<string> vec, string delim);
+string strTrim(string str);
 string strReplace(string haystack, string needle, string replace);
-string randomString(size_t length);
+string strRandom(size_t length);
 string urlDecode(string encoded);
 void keyToData(MixedMap *data, string key, string value);
 void parseDataUrlencoded(MixedMap *data, string body);

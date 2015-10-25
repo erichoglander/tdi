@@ -45,23 +45,29 @@ string MixedMap::toString(int d) {
 	if (children.size()) {
 		string str;
 		str+= "{\n";
-		for (map<string, MixedMap*>::iterator itr = children.begin(); itr != children.end(); itr++) 
-			str+= indent(d+1) + "\"" + itr->first + "\": " + itr->second->toString(d+1) + ",\n";
+		for (auto itr = children.begin(); itr != children.end(); itr++) {
+			str+= indent(d+1) + "\"" + itr->first + "\": " + itr->second->toString(d+1);
+			if (itr != (--children.end()))
+				str+= ",";
+			str+= "\n";
+		}
 		str+= indent(d)+"}";
 		if (d == 0)
 			str+= "\n";
 		return str;
 	}
-	else {
+	else if (value.size()) {
 		return "\""+value+"\"";
+	}
+	else {
+		return "null";
 	}
 }
 void MixedMap::fromString(string str) {
 	int a, b, c, i;
-	string key, sub, val;
-
+	string key, val;
 	clear();
-	str = trim(str);
+	str = strTrim(str);
 	if (str[0] == '"') {
 		a = str.find_last_of('"');
 		if (a == string::npos) 
@@ -107,12 +113,19 @@ void MixedMap::fromString(string str) {
 				break;
 			key = to_string(b);
 			i = findEnd(str, c);
-			if (str[c] == '"') 
+			if (str[c] == '"') {
 				set(key, str.substr(c+1, i-c-1));
-			else if (str[c] == '{' || str[c] == '[') 
+			}
+			else if (str[c] == '{' || str[c] == '[') {
 				children[key]->fromString(str.substr(c, i-c+1));
-			else 
-				set(key, str.substr(c, i-c+1));
+			}
+			else {
+				val = str.substr(c, i-c+1);
+				if (val == "null")
+					init(key);
+				else
+					set(key, str.substr(c, i-c+1));
+			}
 		}
 	}
 }
@@ -300,7 +313,7 @@ void HttpHandler::sessionStart() {
 			sessionId = request.cookies["SESSID"];
 	}
 	if (!sessionId.size()) {
-		sessionId = randomString(24);
+		sessionId = strRandom(24);
 		response.setCookie(new HttpCookie("SESSID", sessionId));
 	}
 }
@@ -338,23 +351,7 @@ int utf8Length(string str) {
 	}
 	return len;
 }
-vector<string> splitString(string str, string delim) {
-	vector<string> vec;
-	int a = 0, b = 0;
-	while (true) {
-		b = str.find(delim, a);
-		if (b == string::npos) {
-			vec.push_back(str.substr(a));
-			break;
-		}
-		else {
-			vec.push_back(str.substr(a, b-a));
-			a = b + delim.size();
-		}
-	}
-	return vec;
-}
-string joinString(vector<string> vec, string delim) {
+string strJoin(vector<string> vec, string delim) {
 	string str;
 	for (int i=0; i<vec.size(); i++) {
 		if (i != 0)
@@ -363,7 +360,7 @@ string joinString(vector<string> vec, string delim) {
 	}
 	return str;
 }
-string trim(string str) {
+string strTrim(string str) {
 	string whitespace = " \r\n\t";
 	size_t size = str.size();
 	size_t wsize = whitespace.size();
@@ -403,7 +400,7 @@ string strReplace(string haystack, string needle, string replace) {
 	}
 	return str;
 }
-string randomString(size_t length) {
+string strRandom(size_t length) {
 
 	string chars = 
 		"abcdefghijklmnopqrstuvwxyz"

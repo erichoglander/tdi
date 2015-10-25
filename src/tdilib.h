@@ -23,7 +23,8 @@ using namespace std;
 class HttpRequest {
 	public:
 		string full, header, body;
-		string host, method, path, query, content_type, content_length;
+		string host, method, uri, path, query, content_type, content_length;
+		vector<string> params;
 		map<string, string> cookies;
 
 		void split();
@@ -36,6 +37,7 @@ class HttpRequest {
 * FUNCTIONS
 */
 void die(string str);
+vector<string> strSplit(string str, string delim);
 string fileExtension(string fpath);
 string fileType(string fpath);
 string fileLoad(string fpath);
