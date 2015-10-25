@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) {
 	http.init();
 
 	http.sessionStart();
-	http.session["user_id"] = "7";
+	// http.session["user_id"] = "7";
 
 	http.response.document = 
 		"<!DOCTYPE html><html>"

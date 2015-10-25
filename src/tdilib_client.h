@@ -36,7 +36,10 @@ class MixedMap {
 		MixedMap* get(string key);
 		void set(string key, string val);
 		string toString(int d = 0);
+		void fromString(string str);
+	private:
 		string indent(int d);
+		int findEnd(string str, int c);
 };
 
 

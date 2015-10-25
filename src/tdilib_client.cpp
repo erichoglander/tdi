@@ -56,11 +56,130 @@ string MixedMap::toString(int d) {
 		return "\""+value+"\"";
 	}
 }
+void MixedMap::fromString(string str) {
+	int a, b, c, i;
+	string key, sub, val;
+
+	clear();
+	str = trim(str);
+	if (str[0] == '"') {
+		a = str.find_last_of('"');
+		if (a == string::npos) 
+			throw "Missing closing \"";
+		else 
+			value = str.substr(1, a-1);
+	}
+	else if (str[0] == '{') {
+		if (str.back() != '}')
+			throw "Missing closing }";
+		a = str.find('"');
+		while (a != string::npos) {
+			a++;
+			b = str.find('"', a);
+			key = str.substr(a, b-a);
+			init(key);
+			for (c = b+1; c<str.size(); c++) {
+				if (str[c] != ':' && str[c] != ' ' && str[c] != '\t' && str[c] != '\r' && str[c] != '\n')
+					break;
+			}
+			if (c == str.size())
+				throw "Unexpected end, key found but no value";
+			i = findEnd(str, c);
+			if (str[c] == '"') 
+				set(key, str.substr(c+1, i-c-1));
+			else if (str[c] == '{' || str[c] == '[') 
+				children[key]->fromString(str.substr(c, i-c+1));
+			else 
+				set(key, str.substr(c, i-c+1));
+			a = str.find('"', i+1);
+		}
+	}
+	else if (str[0] == '[') {
+		if (str.back() != ']')
+			throw "Missing closing ]";
+		for (a = 1, b = 0; a<str.size(); a = i+1, b++) {
+			// Find start of next value
+			for (c = a; c<str.size(); c++) {
+				if (str[c] != ',' && str[c] != ' ' && str[c] != '\t' && str[c] != '\r' && str[c] != '\n')
+					break;
+			}
+			if (str[c] == ']')
+				break;
+			key = to_string(b);
+			i = findEnd(str, c);
+			if (str[c] == '"') 
+				set(key, str.substr(c+1, i-c-1));
+			else if (str[c] == '{' || str[c] == '[') 
+				children[key]->fromString(str.substr(c, i-c+1));
+			else 
+				set(key, str.substr(c, i-c+1));
+		}
+	}
+}
 string MixedMap::indent(int d) {
 	string str;
 	for (int i=0; i<d; i++)
 		str+= "  ";
 	return str;
+}
+int MixedMap::findEnd(string str, int c) {
+	int i;
+	bool inq = false;
+	if (str[c] == '"') {
+		c++;
+		for (i=c; i<str.size(); i++) {
+			if (str[i] == '\\')
+				i++;
+			else if (str[i] == '"')
+				break;
+		}
+		if (i == str.size())
+			throw "Missing closing \"";
+	}
+	else if (str[c] == '{') {
+		int bracket = 1;
+		for (i=c+1; i<str.size(); i++) {
+			if (str[i] == '\\')
+				i++;
+			else if (str[i] == '"')
+				inq = !inq;
+			else if (str[i] == '{' && !inq)
+				bracket++;
+			else if (str[i] == '}' && !inq) {
+				bracket--;
+				if (bracket == 0)
+					break;
+			}
+		}
+		if (i == str.size())
+			throw "Missing closing }";
+	}
+	else if (str[c] == '[') {
+		int bracket = 1;
+		for (i=c+1; i<str.size(); i++) {
+			if (str[i] == '\\')
+				i++;
+			else if (str[i] == '"')
+				inq = !inq;
+			else if (str[i] == '[' && !inq)
+				bracket++;
+			else if (str[i] == ']' && !inq) {
+				bracket--;
+				if (bracket == 0)
+					break;
+			}
+		}
+		if (i == str.size())
+			throw "Missing closing ]";
+	}
+	else {
+		i = str.find(',', c);
+		if (i == string::npos) 
+			i = str.find(' ', c);
+		if (i != string::npos)
+			i--;
+	}
+	return i;
 }
 
 
@@ -154,7 +273,7 @@ HttpHandler::HttpHandler() {
 	sessionPath = "sessions";
 }
 HttpHandler::~HttpHandler() {
-	this->sessionSave();
+	sessionSave();
 }
 void HttpHandler::init() {
 	request.parse();
@@ -177,7 +296,7 @@ void HttpHandler::parsePost() {
 }
 void HttpHandler::sessionStart() {
 	if (request.cookies.count("SESSID") != 0) {
-		if (this->sessionLoad(request.cookies["SESSID"]) == 0)
+		if (sessionLoad(request.cookies["SESSID"]) == 0)
 			sessionId = request.cookies["SESSID"];
 	}
 	if (!sessionId.size()) {
@@ -189,10 +308,9 @@ int HttpHandler::sessionLoad(string sessid) {
 	string fpath = sessionPath+"/"+sessid;
 	if (!fileExists(fpath))
 		return -1;
-	string content = fileLoad(fpath);
-	if (content.size()) {
-		// TODO: Json parser
-	}
+	sessionLoaded = fileLoad(fpath);
+	if (sessionLoaded.size()) 
+		session.fromString(sessionLoaded);
 	return 0;
 }
 void HttpHandler::sessionSave() {
@@ -253,24 +371,28 @@ string trim(string str) {
 
 	// Leading whitespace
 	j = 0;
-	for (i=0; i<size && j != wsize; i++) {
+	for (i=0; i<size; i++) {
 		for (j=0; j<wsize; j++) {
 			if (str[i] == whitespace[j])
 				break;
 		}
+		if (j == wsize)
+			break;
 	}
 	if (i == size)
 		return str.substr(i);
 
 	// Trailing whitespace
 	j = 0;
-	for (k=size-1; k>=0 && j != wsize; k--) {
+	for (k=size-1; k>=0; k--) {
 		for (j=0; j<wsize; j++) {
 			if (str[k] == whitespace[j])
 				break;
 		}
+		if (j == wsize)
+			break;
 	}
-	return str.substr(i, k-i);
+	return str.substr(i, k-i+1);
 }
 string strReplace(string haystack, string needle, string replace) {
 	string str = haystack;
