@@ -243,12 +243,15 @@ string HttpResponseHeader::toString(int content_length) {
 	string date = ctime(&now);
 
 	str = 
-		protocol+" "+code+"\r\n"+
-		"Server: "+server+"\r\n"+
-		"Connection: "+connection+"\r\n"+
-		"Content-type: "+content_type+"\r\n"+
+		protocol+" "+code+"\r\n"
+		"Server: "+server+"\r\n"
+		"Connection: "+connection+"\r\n"
+		"Content-type: "+content_type+"\r\n"
 		"Date: "+date+
 		"Content-Length: "+to_string(content_length);
+
+	if (location.size())
+		str+= "\r\nLocation: "+location;
 
 	if (cookies.size()) {
 		for (auto itr = cookies.begin(); itr != cookies.end(); itr++) 

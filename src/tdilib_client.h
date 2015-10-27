@@ -57,7 +57,7 @@ class HttpCookie {
 };
 class HttpResponseHeader {
 	public:
-		string protocol, code, server, connection, content_type;
+		string protocol, code, server, connection, content_type, location;
 		map<string, HttpCookie*> cookies;
 
 		HttpResponseHeader();
