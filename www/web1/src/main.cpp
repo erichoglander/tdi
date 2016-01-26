@@ -61,9 +61,8 @@ void PageHandler::execute() {
 // Index page
 void PageHandler::pageIndex() {
 	head = "";
-	title = "Front page";
 	if (http->request.method == "POST") {
-		redirect("?title="+title);
+		redirect("?title="+http->post["title"].value);
 	}
 	else {
 		content = 
