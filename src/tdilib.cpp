@@ -124,7 +124,7 @@ string fileType(string fpath) {
 	string texts[4] = {"html", "htm", "css", "js"};
 	string type;
 
-	for (int i; i<4; i++) {
+	for (int i=0; i<4; i++) {
 		if (texts[i] == extension) {
 			type = "text/";
 			type+= extension;
